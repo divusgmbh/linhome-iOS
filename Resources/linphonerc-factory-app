@@ -4,7 +4,7 @@
 debug=1
 
 ## App group name : Set the same name in App Group (capabilities in both targets - app & extension)
-app_group_name=group.org.linhome
+app_group_name=group.mmt.linhome
 
 ## Apple team ID (used for push notifications)
 team_id=Z2V957B3D6

@@ -49,7 +49,7 @@ extension Config {
 	}
 	
 	// Apple related
-	static let appGroupName = "group.org.linhome" // Needs to be the same name in App Group (capabilities in ALL targets - app & extensions - content + service), can't be stored in the Config itself the Config needs this value to get created
+	static let appGroupName = "group.mmt.linhome" // Needs to be the same name in App Group (capabilities in ALL targets - app & extensions - content + service), can't be stored in the Config itself the Config needs this value to get created
 	static let teamID = Config.get().getString(section: "app", key: "team_id", defaultString: "")
 	static let earlymediaContentExtensionCagetoryIdentifier = Config.get().getString(section: "app", key: "extension_category", defaultString: "")
 	

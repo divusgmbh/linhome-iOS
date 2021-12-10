@@ -4,7 +4,7 @@
 debug=1
 
 ## App group name : Set the same name in App Group (capabilities in both targets - app & extension)
-app_group_name=group.mmt.linhome
+app_group_name=group.eu.divus.videophonemobile
 
 ## Apple team ID (used for push notifications)
 team_id=Z2V957B3D6
@@ -28,7 +28,7 @@ sip_tcp_port=-1
 mtu=1300
 force_ice_disablement=1
 firewall_policy=ice
-stun_server=stun.linphone.org
+stun_server=sip.divus.eu
 push_notifications_type=remote
 
 
@@ -41,15 +41,15 @@ enabled=1
 
 
 [assistant]
-xmlrpc_url=https://subscribe.linhome.org/flexisip-account-manager/linhome/xmlrpc.php
+xmlrpc_url=https://sip.divus.eu/xmlrpc/xmlrpc.php
 ; MD5 / SHA-256
 password_algo=MD5
-domain=sip.linhome.org
-freesip_url=https://subscribe.linhome.org/login
+domain=sip.divus.eu
+freesip_url=
 
 [misc]
-version_check_url_root=https://www.linphone.org/releases
-log_collection_upload_server_url=https://www.linphone.org:444/lft.php
+version_check_url_root=
+log_collection_upload_server_url=
 max_calls=1
 history_max_size=100
 

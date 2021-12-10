@@ -1,5 +1,6 @@
 [app]
 debug=1
+push_notification=1
 
 [rtp]
 audio_rtp_port=-1

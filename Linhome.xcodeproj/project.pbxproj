@@ -1614,7 +1614,7 @@
 				CODE_SIGN_ENTITLEMENTS = LinhomeContentExtension/LinhomeNotifContentExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = K8D3BMS929;
+				DEVELOPMENT_TEAM = K24U7C2CWL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/LinhomeContentExtension/notifcontent-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1623,7 +1623,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "mmt.linhome.content-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "eu.divus.videophonemobile.content-extension";
 				PRODUCT_NAME = LinhomeContentExtension;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1641,7 +1641,7 @@
 				CODE_SIGN_ENTITLEMENTS = LinhomeContentExtension/LinhomeNotifContentExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = K8D3BMS929;
+				DEVELOPMENT_TEAM = K24U7C2CWL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/LinhomeContentExtension/notifcontent-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1650,7 +1650,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "mmt.linhome.content-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "eu.divus.videophonemobile.content-extension";
 				PRODUCT_NAME = LinhomeContentExtension;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1786,15 +1786,15 @@
 				CODE_SIGN_ENTITLEMENTS = Linhome/Linhome.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = K8D3BMS929;
+				DEVELOPMENT_TEAM = K24U7C2CWL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Linhome/app-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = mmt.linhome;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = eu.divus.videophonemobile;
 				PRODUCT_NAME = Linhome;
 				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_VERSION = 5.0;
@@ -1812,15 +1812,15 @@
 				CODE_SIGN_ENTITLEMENTS = Linhome/Linhome.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = K8D3BMS929;
+				DEVELOPMENT_TEAM = K24U7C2CWL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Linhome/app-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = mmt.linhome;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = eu.divus.videophonemobile;
 				PRODUCT_NAME = Linhome;
 				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_VERSION = 5.0;
@@ -1836,7 +1836,7 @@
 				CODE_SIGN_ENTITLEMENTS = LinhomeServiceExtension/LinhomeServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = K8D3BMS929;
+				DEVELOPMENT_TEAM = K24U7C2CWL;
 				INFOPLIST_FILE = "LinhomeServiceExtension/notifservice-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1844,7 +1844,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "mmt.linhome.service-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "eu.divus.videophonemobile.service-extension";
 				PRODUCT_NAME = LinhomeServiceExtension;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1860,7 +1860,7 @@
 				CODE_SIGN_ENTITLEMENTS = LinhomeServiceExtension/LinhomeServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = K8D3BMS929;
+				DEVELOPMENT_TEAM = K24U7C2CWL;
 				INFOPLIST_FILE = "LinhomeServiceExtension/notifservice-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1868,7 +1868,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "mmt.linhome.service-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "eu.divus.videophonemobile.service-extension";
 				PRODUCT_NAME = LinhomeServiceExtension;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

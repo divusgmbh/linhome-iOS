@@ -31,8 +31,8 @@ class Splash: UIViewController {
 	override func viewDidLoad() {
         super.viewDidLoad()
 		linhomeIcon.prepare(iconName: "others/linhome_icon", fillColor: "color_c", bgColor: nil)
-		linhomeText.prepare(iconName: "others/linhome_text", fillColor: "color_c", bgColor: nil)
-		linhomeTitle.prepare(styleKey: "splash_title",textKey: "splash_title")
+		linhomeText.prepare(iconName: "others/linhome_text_two_line", fillColor: "color_c", bgColor: nil)
+		linhomeTitle.prepare(styleKey: "splash_title",textKey: "copyright_text")
 		DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Customisation.it.themeConfig.getInt(section: "arbitrary-values", key: "splash_display_duration_ms", defaultValue: 2000))) {
 			let newViewController = MainView()
 			newViewController.modalPresentationStyle = .fullScreen

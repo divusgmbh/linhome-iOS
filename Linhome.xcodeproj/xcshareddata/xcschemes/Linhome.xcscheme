@@ -15,7 +15,7 @@
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "C676AD7324040F6C0048C504"
-                     BuildableName = "Linhome.app"
+                     BuildableName = "Videophone Mobile.app"
                      BlueprintName = "Linhome"
                      ReferencedContainer = "container:Linhome.xcodeproj">
                   </BuildableReference>
@@ -32,7 +32,7 @@
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "C676AD7324040F6C0048C504"
-                     BuildableName = "Linhome.app"
+                     BuildableName = "Videophone Mobile.app"
                      BlueprintName = "Linhome"
                      ReferencedContainer = "container:Linhome.xcodeproj">
                   </BuildableReference>
@@ -50,7 +50,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C676AD7324040F6C0048C504"
-               BuildableName = "Linhome.app"
+               BuildableName = "Videophone Mobile.app"
                BlueprintName = "Linhome"
                ReferencedContainer = "container:Linhome.xcodeproj">
             </BuildableReference>
@@ -66,7 +66,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C676AD7324040F6C0048C504"
-            BuildableName = "Linhome.app"
+            BuildableName = "Videophone Mobile.app"
             BlueprintName = "Linhome"
             ReferencedContainer = "container:Linhome.xcodeproj">
          </BuildableReference>
@@ -89,7 +89,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C676AD7324040F6C0048C504"
-            BuildableName = "Linhome.app"
+            BuildableName = "Videophone Mobile.app"
             BlueprintName = "Linhome"
             ReferencedContainer = "container:Linhome.xcodeproj">
          </BuildableReference>
@@ -106,7 +106,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C676AD7324040F6C0048C504"
-            BuildableName = "Linhome.app"
+            BuildableName = "Videophone Mobile.app"
             BlueprintName = "Linhome"
             ReferencedContainer = "container:Linhome.xcodeproj">
          </BuildableReference>

@@ -77,7 +77,7 @@ class ActionRow: UIViewController {
 		
 		child.code?.view.snp.makeConstraints { (make) -> Void in
 			make.left.equalTo(spinner.view.snp.right).offset(10)
-			make.width.equalTo(54)
+			make.width.equalTo(70)
 		}
 		
 		delete.snp.makeConstraints { (make) -> Void in

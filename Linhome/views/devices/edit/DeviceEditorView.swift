@@ -57,6 +57,7 @@ class DeviceEditorView: MainViewContentWithScrollableForm {
 		addressInput = LTextInput.addOne(titleKey: "device_address", targetVC: self, keyboardType: UIKeyboardType.default, validator: ValidatorFactory.sipUri, liveInfo: model.address, inForm: form, hintKey: "device_address_hint")
 		
 		// device type
+        /*
 		let deviceTypeTitle = UILabel()
 		form.addArrangedSubview(deviceTypeTitle)
 		deviceTypeTitle.snp.makeConstraints { (make) -> Void in
@@ -72,13 +73,13 @@ class DeviceEditorView: MainViewContentWithScrollableForm {
 			nameInput?.view.snp.makeConstraints({ (make) in
 				make.top.equalToSuperview().offset(80)
 			})
-		}
+		}*/
 		
 		// Method type
 		let actionsTitle = UILabel()
 		(landScapeIpad ? formSecondColumn : form).addArrangedSubview(actionsTitle)
 		actionsTitle.snp.makeConstraints { (make) -> Void in
-			make.top.equalTo(landScapeIpad ? viewSubtitle.snp.bottom : deviceSpinner.view.snp.bottom)
+			make.top.equalTo(landScapeIpad ? viewSubtitle.snp.bottom : addressInput!.view.snp.bottom)
 			make.height.equalTo(landScapeIpad ? 80 : 30)
 		}
 		actionsTitle.prepare(styleKey: "section_title",textKey:"method_type_select")
@@ -100,7 +101,7 @@ class DeviceEditorView: MainViewContentWithScrollableForm {
 		
 		if (landScapeIpad) {
 			delete.snp.makeConstraints { (make) in
-				make.top.greaterThanOrEqualTo(deviceSpinner.view.snp.bottom).offset(40)
+				make.top.greaterThanOrEqualTo(addressInput!.view.snp.bottom).offset(40)
 			}
 		}
 		

@@ -74,6 +74,7 @@ class SettingsView: MainViewContent, MFMailComposeViewControllerDelegate {
 			DialogUtil.info("log_clear_success")
 		})
 		
+        /*
 		let _ = SettingButton.addOne(titleText: Texts.get("send_logs"),targetVC: self, form: form, liveCollapsed:model.enableDebugLogs.opposite(), pad:true, onClick: {
 			
 			self.showProgress()
@@ -90,6 +91,7 @@ class SettingsView: MainViewContent, MFMailComposeViewControllerDelegate {
 			model.sendLogs()
 			
 		})
+        */
 		
 		let _ = SettingSwitch.addOne(titleText: Texts.get("settings_device_show_latest_snapshot"), subtitleText: nil, targetVC: self, liveValue: model.showLatestSnapshot, form: form)
 		

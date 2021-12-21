@@ -40,7 +40,7 @@ class About: MainViewContent {
 		
 		isRoot = false
 		onTopOfBottomBar = true
-		titleTextKey = "about"
+		titleTextKey = "menu_about"
 		
 		setGradientBg()
 

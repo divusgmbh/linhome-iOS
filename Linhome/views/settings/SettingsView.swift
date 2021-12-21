@@ -37,7 +37,7 @@ class SettingsView: MainViewContent, MFMailComposeViewControllerDelegate {
 		
 		isRoot = false
 		onTopOfBottomBar = true
-		titleTextKey = "settings"
+		titleTextKey = "menu_settings"
 		
 		scrollView.snp.makeConstraints { make in
 			make.edges.equalTo(view)

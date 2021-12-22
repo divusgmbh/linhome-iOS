@@ -48,7 +48,8 @@ class About: MainViewContent {
 		linhomeIcon.prepare(iconName: "others/linhome_icon", fillColor: "color_c", bgColor: nil)
 		linhomeText.prepare(iconName: "others/linhome_text", fillColor: "color_c", bgColor: nil)
 		linhomeTitle.prepare(styleKey: "splash_title",textKey: "splash_title")
-		
+        linhomeTitle.isHidden = true
+        
 		appVersion.prepare(styleKey: "about_text",textKey:"app_version",arg1:"iOS", arg2:"\(GIT_VERSION) - \(Bundle.main.desc())")
 		coreVersion.prepare(styleKey: "about_text",textKey:"sdk_version",arg1:Core.getVersion)
 

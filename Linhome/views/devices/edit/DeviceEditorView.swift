@@ -65,7 +65,7 @@ class DeviceEditorView: MainViewContentWithScrollableForm {
 		}
 		deviceTypeTitle.prepare(styleKey: "section_title",textKey:"device_type_select")
 		let deviceSpinner = LSpinner.addOne(titleKey: nil, targetVC: self, options:model.availableDeviceTypes, liveIndex: model.deviceType, form:form)
-		
+		*/
 		
 		
 		if (landScapeIpad) {
@@ -73,7 +73,7 @@ class DeviceEditorView: MainViewContentWithScrollableForm {
 			nameInput?.view.snp.makeConstraints({ (make) in
 				make.top.equalToSuperview().offset(80)
 			})
-		}*/
+		}
 		
 		// Method type
 		let actionsTitle = UILabel()

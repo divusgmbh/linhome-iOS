@@ -45,11 +45,11 @@ xmlrpc_url=https://sip.divus.eu/xmlrpc/xmlrpc.php
 ; MD5 / SHA-256
 password_algo=SHA-256
 domain=sip.divus.eu
-freesip_url=
+freesip_url=https://sip.divus.eu/login
 
 [misc]
-version_check_url_root=
-log_collection_upload_server_url=
+version_check_url_root=https://sip.divus.eu/linhomereleases
+log_collection_upload_server_url=https://sip.divus.eu/logs
 max_calls=1
 history_max_size=100
 

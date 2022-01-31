@@ -52,6 +52,7 @@ class ChunkNameAddress: UIViewController {
 		}
 		address.prepare(styleKey: "view_call_device_address")
 		address.text = callViewModel.call.remoteAddress?.asString()
+        address.isHidden = true
 		
 		self.view.snp.makeConstraints { (make) in
 			make.height.equalTo(address.intrinsicContentSize.height + name.intrinsicContentSize.height + 5)

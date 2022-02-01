@@ -125,7 +125,7 @@ class DeviceInfoView: MainViewContent, UITableViewDataSource, UITableViewDelegat
 		address!.prepare(styleKey: "view_device_info_address",text: device.address)
 		device.type.map { type in
 			DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(20)) {
-				self.typeIcon!.prepare(iconName: DeviceTypes.it.iconNameForDeviceType(typeKey:type)!, fillColor: nil, bgColor: nil)
+				self.typeIcon!.prepareSwiftSVG(iconName: DeviceTypes.it.iconNameForDeviceType(typeKey:type)!, fillColor: nil, bgColor: nil)
 			}
 			typeName!.prepare(styleKey: "view_device_info_type_name",text: device.typeName())
 		}

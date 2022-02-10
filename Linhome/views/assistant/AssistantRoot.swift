@@ -38,10 +38,11 @@ class AssistantRoot: MainViewContentWithScrollableForm {
 		let createLinhomeAccount = UIRoundRectButton(container:contentView, placedBelow:form, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_create_linhome_account", topMargin: 0)
 		let loginLinhome = UIRoundRectButton(container:contentView, placedBelow:createLinhomeAccount, effectKey: "secondary_color", tintColor: "color_c", textKey: "login_untranslated", topMargin: 23)
 		let loginSip = UIRoundRectButton(container:contentView, placedBelow:loginLinhome, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_use_sip_account", topMargin: 23)
-		let remoteConfig = UIRoundRectButton(container:contentView, placedBelow:loginLinhome, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_remote_prov", topMargin: 23, isLastInContainer : true)
+		let remoteConfig = UIRoundRectButton(container:contentView, placedBelow:loginLinhome, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_remote_prov", topMargin: 23)
         createLinhomeAccount.isHidden = true
         loginSip.isHidden = true
         remoteConfig.isHidden = true
+        self.addRegisterHint(elementAbove: remoteConfig)
 		
 		createLinhomeAccount.onClick {
 			self.navigateToComponent(childClass: CreateLinhomeAccountView.self)
@@ -60,6 +61,44 @@ class AssistantRoot: MainViewContentWithScrollableForm {
 		}
 		
 	}
+    
+    private func addRegisterHint(elementAbove : UIView) {
+        // register hint text
+        let registerHintText = UILabel()
+        contentView.addSubview(registerHintText)
+        registerHintText.snp.makeConstraints { make in
+            make.top.equalTo(elementAbove.snp.bottom).offset(33)
+            make.centerX.equalTo(view.snp.centerX)
+            make.left.equalTo(contentView).offset((20))
+            make.right.equalTo(contentView).offset(-20)
+        }
+        registerHintText.setText(textKey: "register_hint_text")
+        registerHintText.numberOfLines = 4
+        registerHintText.prepare(styleKey: "view_sub_title")
+        // register hint URL
+        let registerHintUrl = UILabel()
+        contentView.addSubview(registerHintUrl)
+        registerHintUrl.snp.makeConstraints { make in
+            make.top.equalTo(registerHintText.snp.bottom).offset(10)
+            make.centerX.equalTo(view.snp.centerX)
+            make.left.equalTo(contentView).offset((20))
+            make.right.equalTo(contentView).offset(-20)
+            //
+            // THIS HAS TO ADDED TO THE VERY LAST ELEMENT, OR onClick WONT WORK !
+            //
+            make.bottom.equalTo(contentView.snp.bottom).offset(-20)
+        }
+        registerHintUrl.prepare(styleKey: "view_sub_title")
+        let underlineAttribute = [NSAttributedString.Key.underlineStyle: NSUnderlineStyle.thick.rawValue]
+        let registerHintUrlAttributedString = NSAttributedString(string: Texts.get("register_hint_url"), attributes: underlineAttribute)
+        registerHintUrl.attributedText = registerHintUrlAttributedString
+        registerHintUrl.onClick {
+            print("onClick")
+            if let url = URL(string: Texts.get("register_hint_link")) {
+                UIApplication.shared.open(url)
+            }
+        }
+    }
 	
 	private func navigateToComponent(childClass: ViewWithModel.Type) {
 		if (Account.it.configured()) {

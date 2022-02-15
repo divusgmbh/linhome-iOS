@@ -72,11 +72,11 @@ class SideMenu: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 					NavigationManager.it.navigateTo(childClass: AccountView.self)
 				})
 			}),
-			MenuOption(iconName: "icons/settings",textKey: "menu_settings",action: {
-				NavigationManager.it.navigateUp(completion: {
-					NavigationManager.it.navigateTo(childClass: SettingsView.self)
-				})
-			}),
+			//MenuOption(iconName: "icons/settings",textKey: "menu_settings",action: {
+			//	NavigationManager.it.navigateUp(completion: {
+			//		NavigationManager.it.navigateTo(childClass: SettingsView.self)
+			//	})
+			//}),
 			MenuOption(iconName: "icons/about",textKey: "menu_about",action: {
 				NavigationManager.it.navigateUp(completion: {
 					NavigationManager.it.navigateTo(childClass: About.self)

@@ -92,12 +92,12 @@ class AssistantRoot: MainViewContentWithScrollableForm {
         let underlineAttribute = [NSAttributedString.Key.underlineStyle: NSUnderlineStyle.thick.rawValue]
         let registerHintUrlAttributedString = NSAttributedString(string: Texts.get("register_hint_url"), attributes: underlineAttribute)
         registerHintUrl.attributedText = registerHintUrlAttributedString
-        registerHintUrl.onClick {
+        /*registerHintUrl.onClick {
             print("onClick")
             if let url = URL(string: Texts.get("register_hint_link")) {
                 UIApplication.shared.open(url)
             }
-        }
+        }*/
     }
 	
 	private func navigateToComponent(childClass: ViewWithModel.Type) {

@@ -32,6 +32,7 @@ class About: MainViewContent {
 	@IBOutlet weak var coreVersion: UILabel!
 	@IBOutlet weak var linhomeOrg: UILabel!
 	@IBOutlet weak var license: UILabel!
+    @IBOutlet weak var sourceCode: UILabel!
 	@IBOutlet weak var copyRight: UILabel!
 	
 	
@@ -54,7 +55,8 @@ class About: MainViewContent {
 		coreVersion.prepare(styleKey: "about_text",textKey:"sdk_version",arg1:Core.getVersion)
 
 		linhomeOrg.prepare(styleKey: "about_link",textKey: "about_link")
-		license.prepare(styleKey: "about_text",textKey: "license_text")
+        sourceCode.prepare(styleKey: "about_text",textKey: "source_code_text")
+        license.prepare(styleKey: "about_text",textKey: "license_text")
 		copyRight.prepare(styleKey: "about_text",textKey: "copyright_text")
 		
 		linhomeOrg.onClick {
@@ -65,11 +67,17 @@ class About: MainViewContent {
 			}
 		}
 		
-		license.onClick {
-			if let url = URL(string:Texts.get("license_link")) {
+		sourceCode.onClick {
+			if let url = URL(string:Texts.get("source_code_link")) {
 				UIApplication.shared.open(url)
 			}
 		}
+        
+        license.onClick {
+            if let url = URL(string:Texts.get("license_link")) {
+                UIApplication.shared.open(url)
+            }
+        }
 		
     }
 	

@@ -6,6 +6,12 @@ The Linhome application has been developed to meet the emerging needs of interco
 
 General description is available from [Linhome web site](https://www.linhome.org)
 
+### DIVUS GmbH license and trademarks
+
+The code is released under the terms of the GNU/GPLv3 license.
+
+"DIVUS", "VIDEOPHONE Mobile" and other branding names are trademarks of DIVUS GmbH and if you plan to build the app for redistribution must be replaced in icons, images and labels.
+
 ### License
 
 Copyright © Belledonne Communications

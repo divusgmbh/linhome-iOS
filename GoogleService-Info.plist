@@ -3,32 +3,34 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>248667132783-c8cof32hr4oc462sc2p77e8p9kba6amo.apps.googleusercontent.com</string>
+	<string>1041242817246-de0fa5ngdf78ql0agpdgvgbukd9o0fui.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.248667132783-c8cof32hr4oc462sc2p77e8p9kba6amo</string>
+	<string>com.googleusercontent.apps.1041242817246-de0fa5ngdf78ql0agpdgvgbukd9o0fui</string>
 	<key>API_KEY</key>
-	<string>AIzaSyD-t83S8Kh5d-BwxviU1TgITrXWOEYJJe4</string>
+	<string>AIzaSyC8-mJ7YmT9JyyQ5dB_MdAntYHDcD-rd0Q</string>
 	<key>GCM_SENDER_ID</key>
-	<string>248667132783</string>
+	<string>1041242817246</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>eu.divus.videophonemobile</string>
+	<string>mmt.linhome</string>
 	<key>PROJECT_ID</key>
-	<string>videophone-mobile</string>
+	<string>linhome-9495d</string>
 	<key>STORAGE_BUCKET</key>
-	<string>videophone-mobile.appspot.com</string>
+	<string>linhome-9495d.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:248667132783:ios:e0ecc7843be58f9fca8e9a</string>
+	<string>1:1041242817246:ios:c6cf6f86400be874cff84f</string>
+	<key>DATABASE_URL</key>
+	<string>https://linhome-9495d.firebaseio.com</string>
 </dict>
 </plist>

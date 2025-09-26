@@ -32,14 +32,14 @@ class CreatorAssistantViewModel : ViewModel {
 	
 	init(defaultValuePath:String) {
 		Core.get().loadConfigFromXml(xmlUri: defaultValuePath)
-		accountCreator = try!Core.get().createAccountCreator(xmlrpcUrl: CorePreferences.them.xmlRpcServerUrl)
+		accountCreator = try!Core.get().createAccountCreator(xmlrpcUrl: nil)
 		if (CorePreferences.them.loginDomain != nil) {
 			accountCreator.domain  = CorePreferences.them.loginDomain!
 		}
 		if (Locale.current.languageCode != nil) {
 			accountCreator.language = Locale.current.languageCode!
 		}
-		accountCreator.algorithm = CorePreferences.them.passwordAlgo!
+		accountCreator.algorithm = CorePreferences.them.passwordAlgo
 		super.init()
 		accountCreator.token = Config.flexiApiToken
 		(UIApplication.shared.delegate as! AppDelegate).flexiApiTokenReceived.observe { _ in
@@ -100,7 +100,7 @@ class CreatorAssistantViewModel : ViewModel {
 		account.findAuthInfo().map { authInfo in
 			authInfo.clone().map { clonedAuthInfo in
 				Core.get().removeAuthInfo(info: authInfo)
-				clonedAuthInfo.algorithm = CorePreferences.them.passwordAlgo!
+				clonedAuthInfo.algorithm = CorePreferences.them.passwordAlgo
 				Core.get().addAuthInfo(info: clonedAuthInfo)
 			}
 		}

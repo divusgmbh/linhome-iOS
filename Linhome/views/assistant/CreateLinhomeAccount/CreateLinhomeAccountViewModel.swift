@@ -31,8 +31,27 @@ class CreateLinhomeAccountViewModel : CreatorAssistantViewModel {
 	var pass2: Pair<MutableLiveData<String>, MutableLiveData<Bool>> = Pair(MutableLiveData<String>(), MutableLiveData<Bool>(false))
 	var creationResult = MutableLiveData<AccountCreator.Status>()
 	
+	// New api for account creation
+	var accountManagerServices: AccountManagerServices? = try?Core.get().createAccountManagerServices()
+	var accountManagerServicesRequestListener: AccountManagerServicesRequestDelegateStub? = nil
+
+	
 	init() {
 		super.init(defaultValuePath: CorePreferences.them.linhomeAccountDefaultValuesPath)
+		
+		accountManagerServicesRequestListener = AccountManagerServicesRequestDelegateStub(
+			onRequestSuccessful: { (request: AccountManagerServicesRequest, data: String) ->Void in
+				if request.type == .CreateAccountUsingToken {
+					DispatchQueue.main.async {
+						self.creatorDelegate?.onCreateAccount(creator: self.accountCreator, status: .AccountCreated, response: "")
+					}
+				}
+			},
+			onRequestError: { (request: AccountManagerServicesRequest, statusCode: Int, errorMessage: String, parameterErrors: Dictionary?) -> Void in
+				self.creationResult.value = .UnexpectedError
+			}
+		)
+		
 		creatorDelegate = AccountCreatorDelegateStub(
 			onCreateAccount:  { (creator:AccountCreator, status:AccountCreator.Status, response:String) -> Void in
 			if (status == AccountCreator.Status.AccountCreated) {
@@ -54,10 +73,15 @@ class CreateLinhomeAccountViewModel : CreatorAssistantViewModel {
 				Log.info("[Assistant] [Account Creation] Account exists")
 				self.creationResult.value = status
 			} else if (status == AccountCreator.Status.AccountNotExist) {
-				let status = try?self.accountCreator.createAccount()
-				Log.info("[Assistant] [Account Creation] Account create returned \(status)")
-				if (status != AccountCreator.Status.RequestOk) {
-					self.creationResult.value = status
+				DispatchQueue.main.async {
+					let request = try?self.accountManagerServices?.createNewAccountUsingTokenRequest(
+						username: self.username.first.value!,
+						password: self.pass1.first.value!,
+						algorithm: CorePreferences.them.passwordAlgo,
+						token: Config.flexiApiToken!
+					)
+					request?.addDelegate(delegate: self.accountManagerServicesRequestListener!)
+					request?.submit()
 				}
 			} else {
 				self.creationResult.value = status

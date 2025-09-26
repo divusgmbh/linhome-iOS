@@ -36,16 +36,6 @@ class CorePreferences {
 		}
 	}
 	
-	var xmlRpcServerUrl: String {
-		get  {
-			config.getString(section: "assistant", key: "xmlrpc_url",defaultString: "")
-		}
-		set {
-			config.setString(section: "assistant", key: "xmlrpc_url", value: newValue)
-		}
-	}
-	
-
 	var showLatestSnapshot: Bool {
 		  get {
 			return config.getBool(section: "devices", key: "latest_snapshot", defaultValue: true)
@@ -75,8 +65,8 @@ class CorePreferences {
 		set { config.setString(section: "assistant", key: "domain", value: newValue) }
 	}
 	
-	var passwordAlgo: String? {
-		get  { return config.getString(section: "assistant", key: "password_algo") }
+	var passwordAlgo: String {
+		get  { return config.getString(section: "assistant", key: "password_algo")! }
 		set { config.setString(section: "assistant", key: "password_algo", value: newValue) }
 	}
 	

@@ -63,6 +63,7 @@ class LoginSipAccountViewModel : FlexiApiPushAccountCreationViewModel {
 		let account = Core.get().accountList.first
 		account?.params?.clone().map {clonedAccountParams in
 			clonedAccountParams.expires = expiration
+			clonedAccountParams.transport = accountCreator.transport
 			if (!TextUtils.isEmpty(proxy) ) {
 				if let address = try?Factory.Instance.createAddress(addr: (accountCreator.transport == .Tls ? "sips:" : "sip:") + proxy! + ";transport="+transports[accountCreator.transport.rawValue]) {
 					try?clonedAccountParams.setRoutesaddresses(newValue: [address])

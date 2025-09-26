@@ -21,6 +21,7 @@
 import Foundation
 import linphonesw
 import linphone
+import UIKit
 
 class CreatorAssistantViewModel : ViewModel {
 	

@@ -44,7 +44,7 @@ class DeviceStore {
 	
 	init () {
 		coreDelegate = CoreDelegateStub(
-			onGlobalStateChanged: { (core: linphonesw.Core, state: linphonesw.GlobalState, message: String) -> Void in
+			onGlobalStateChanged: { (core: Core, state: GlobalState, message: String) -> Void in
 				Log.info("Core state changed to \(state)")
 				if (!self.enteringBackground && state == .On) {
 					Core.get().friendsDatabasePath = FileUtil.sharedContainerUrl().path + "/devices.db"

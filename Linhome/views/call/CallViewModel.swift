@@ -21,7 +21,7 @@
 import Foundation
 import linphonesw
 import AVFoundation
-
+import UIKit
 
 class CallViewModel : ViewModel {
 	
@@ -53,7 +53,7 @@ class CallViewModel : ViewModel {
 		}
 		
 		callDelegate =  CallDelegateStub(
-			onStateChanged : { (call: linphonesw.Call, state: linphonesw.Call.State, message: String) -> Void in
+			onStateChanged : { (call: Call, state: Call.State, message: String) -> Void in
 				self.historyEvent = call.callLog!.getHistoryEvent()
 				self.fireActionsOnCallStateChanged(cstate: state)
 				self.attemptSetDeviceThumbnail(cstate: state)
@@ -66,7 +66,7 @@ class CallViewModel : ViewModel {
 					self.callState.value = state
 				}
 			},
-			onNextVideoFrameDecoded : { (call: linphonesw.Call) -> Void in
+			onNextVideoFrameDecoded : { (call: Call) -> Void in
 				if let recordingFile = call.params?.recordFile, let mimeType = call.currentParams?.usedVideoPayloadType?.mimeType {
 					Core.get().config?.setString(section: "recording_formats",key: recordingFile,value: mimeType)
 				}

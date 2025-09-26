@@ -19,6 +19,8 @@
 
 
 import linphonesw
+import Foundation
+import UIKit
 
 class SettingsViewModel : ViewModel {
 	

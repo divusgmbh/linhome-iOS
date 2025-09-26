@@ -78,7 +78,7 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
 		if (core != nil) {
 			return
 		}
-		coreDelegateStub = CoreDelegateStub(onCallStateChanged:  {(lc: linphonesw.Core, call: linphonesw.Call, cstate: linphonesw.Call.State, message: String)  in
+		coreDelegateStub = CoreDelegateStub(onCallStateChanged:  {(lc: Core, call: Call, cstate: Call.State, message: String)  in
 			guard let callId = call.callLog?.callId, let notifCallId = request.content.userInfo["call-id"] as! String?, callId == notifCallId else {
 				Log.info("Ignoring a onCallStateChanged for a call that is not related to that notification. update:\(call.callLog?.callId ?? "nil") notificaiton:\(request.content.userInfo["call-id"] ?? "nil")")
 				return
@@ -88,7 +88,7 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
 			if (!hasVideo) {
 				self.activityIndicator.isHidden = true
 			}
-			if (cstate == linphonesw.Call.State.IncomingReceived) {
+			if (cstate == Call.State.IncomingReceived) {
 				if (!self.declined) {
 					if (hasVideo) {
 						lc.nativeVideoWindowId = UnsafeMutableRawPointer(Unmanaged.passUnretained(self.videoPreview).toOpaque()) // Set the video window
@@ -100,7 +100,7 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
 				self.call = call
 			}
 			
-			if (cstate == linphonesw.Call.State.Released || cstate == linphonesw.Call.State.End) {
+			if (cstate == Call.State.Released || cstate == Call.State.End) {
 				if #available(iOS 12.0, *) {
 					self.extensionContext?.dismissNotificationContentExtension()
 				}

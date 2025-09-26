@@ -32,7 +32,7 @@ class AccountViewModel : ViewModel {
 		super.init()
 		accountDesc.value = getDescription(key: "account_info",account: account)
 		pushGWDesc.value = getDescription(key: "push_account_info",account: pushGw)
-		coreDelegate = CoreDelegateStub(onAccountRegistrationStateChanged : { (core: linphonesw.Core, cfg: linphonesw.Account, state: linphonesw.RegistrationState, message: String) -> Void in
+		coreDelegate = CoreDelegateStub(onAccountRegistrationStateChanged : { (core: Core, cfg: Account, state: RegistrationState, message: String) -> Void in
 			if (cfg.params?.idkey == Config.PUSH_GW_ID_KEY) {
 				self.pushGWDesc.value = self.getDescription(key: "push_account_info",account: self.pushGw)
 			} else {

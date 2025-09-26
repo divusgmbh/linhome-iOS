@@ -36,7 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 	
 	var appOpenedTime = Date()
 	
-	var coreState = MutableLiveData(linphonesw.GlobalState.Off)
+	var coreState = MutableLiveData(GlobalState.Off)
 	var flexiApiTokenReceived = MutableLiveData(false)
 	
 	var historyNotifTapped = false
@@ -82,10 +82,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		window?.makeKeyAndVisible()
 		
 		coreDelegate = CoreDelegateStub(
-			onGlobalStateChanged: { (core: linphonesw.Core, state: linphonesw.GlobalState, message: String) -> Void in
+			onGlobalStateChanged: { (core: Core, state: GlobalState, message: String) -> Void in
 				self.coreState.value = state
 			},
-			onCallStateChanged : { (lc: linphonesw.Core, call: linphonesw.Call, cstate: linphonesw.Call.State, message: String) -> Void in
+			onCallStateChanged : { (lc: Core, call: Call, cstate: Call.State, message: String) -> Void in
 				
 				Log.error("onCallStateChanged \(cstate)")
 				
@@ -93,25 +93,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 					Call.requestOwnerShip(callId) // Will release the extension handling
 				}
 				
-				if (cstate == linphonesw.Call.State.Released) {
+				if (cstate == Call.State.Released) {
 					SVProgressHUD.dismiss()
 					let openFiles = FileUtil.openFilePaths()
 					Log.debug("Open file descriptors: limit = \(FileUtil.getNofFileLimit()) count=\(openFiles.count) FDs : \n \(openFiles)")
 				}
 				
-				if (cstate == linphonesw.Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background
+				if (cstate == Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background
 					DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
 						//self.applicationWillResignActive(UIApplication.shared)
 					}
 				}
 				
-				if (cstate == linphonesw.Call.State.Released && call.callLog?.dir == .Incoming) {
+				if (cstate == Call.State.Released && call.callLog?.dir == .Incoming) {
 					if (self.appOpenedTime.timeIntervalSince1970 > Double((call.callLog?.startDate ?? 0))) {
 						//UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
 					}
 				}
 				
-				if (cstate == linphonesw.Call.State.Error && call.callLog?.dir == Call.Dir.Outgoing) {
+				if (cstate == Call.State.Error && call.callLog?.dir == Call.Dir.Outgoing) {
 					DispatchQueue.main.async {
 						DialogUtil.error("unable_to_call_device")
 					}
@@ -142,18 +142,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 					}
 				}
 				
-				if (cstate == linphonesw.Call.State.IncomingReceived && !self.hasBeenConnected.contains(call.callLog?.callId ?? nil)) {
+				if (cstate == Call.State.IncomingReceived && !self.hasBeenConnected.contains(call.callLog?.callId ?? nil)) {
 					DispatchQueue.main.async {
 						NavigationManager.it.navigateTo(childClass: CallIncomingView.self, asRoot:false, argument:Pair(call, [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia]))
 					}
 				}
-				if (cstate == linphonesw.Call.State.Connected) {
+				if (cstate == Call.State.Connected) {
 					call.callLog.map{self.hasBeenConnected.append($0.callId)}
 					DispatchQueue.main.async {
 						NavigationManager.it.navigateTo(childClass: CallInProgressView.self, asRoot:false, argument:Pair(call, [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote]))
 					}
 				}
-				if (cstate == linphonesw.Call.State.OutgoingInit) {
+				if (cstate == Call.State.OutgoingInit) {
 					DispatchQueue.main.async {
 						NavigationManager.it.navigateTo(childClass: CallOutgoingView.self, asRoot:false, argument:Pair(call, [Call.State.OutgoingRinging, Call.State.OutgoingProgress, Call.State.OutgoingInit, Call.State.OutgoingEarlyMedia]))
 					}

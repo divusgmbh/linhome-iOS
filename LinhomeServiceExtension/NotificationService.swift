@@ -105,13 +105,13 @@ class NotificationService: UNNotificationServiceExtension {
 	
 		userDefaults.set(Date(), forKey: "notification_time_"+notifCallId)
 	
-		coreDelegateStub = CoreDelegateStub(onCallStateChanged : { (lc: linphonesw.Core, call: linphonesw.Call, cstate: linphonesw.Call.State, message: String) -> Void in
+		coreDelegateStub = CoreDelegateStub(onCallStateChanged : { (lc: Core, call: Call, cstate: Call.State, message: String) -> Void in
 			Log.info("CoreDelegateStub onCallStateChanged \(cstate) call callId = \(call.callLog?.callId ?? "nil") notification call Id:\(request.content.userInfo["call-id"] ?? "nil")")
 			
 			 if let callId = call.callLog?.callId, callId != notifCallId  {
 				Log.warn("onCallStateChanged for a call that is not related to that notification. update:\(call.callLog?.callId ?? "nil") notificaiton:\(request.content.userInfo["call-id"] ?? "nil")")
 			}
-			if (cstate == linphonesw.Call.State.IncomingReceived) {
+			if (cstate == Call.State.IncomingReceived) {
 				self.candidateCall = call
 				self.waitForACall = false
 			}
@@ -122,7 +122,7 @@ class NotificationService: UNNotificationServiceExtension {
 				}
 			}
 			
-			if (cstate == linphonesw.Call.State.End) {
+			if (cstate == Call.State.End) {
 				self.waitForACall = false
 				self.finishedHere = true
 				if (call.params?.isRecording == true) {
@@ -190,7 +190,7 @@ class NotificationService: UNNotificationServiceExtension {
 		userDefaults.set(bestAttemptContent.title, forKey: "notification_title_"+notifCallId)
 
 		
-		callDelegate =  CallDelegateStub(onNextVideoFrameDecoded : { (call: linphonesw.Call) -> Void in
+		callDelegate =  CallDelegateStub(onNextVideoFrameDecoded : { (call: Call) -> Void in
 				if let event = call.callLog?.getHistoryEvent() {
 					if (!event.hasVideo) {
 						event.hasVideo = true

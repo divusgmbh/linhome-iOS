@@ -19,6 +19,7 @@
  */
 
 import linphonesw
+import Foundation
 
 class  FlexiApiPushAccountCreationViewModel : CreatorAssistantViewModel {
 	

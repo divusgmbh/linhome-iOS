@@ -28,7 +28,7 @@ class LoginSipAccountViewModel : FlexiApiPushAccountCreationViewModel {
 	var username: Pair<MutableLiveData<String>, MutableLiveData<Bool>> = Pair(MutableLiveData<String>(), MutableLiveData<Bool>(false))
 	var domain: Pair<MutableLiveData<String>, MutableLiveData<Bool>> = Pair(MutableLiveData<String>(), MutableLiveData<Bool>(false))
 	var pass1: Pair<MutableLiveData<String>, MutableLiveData<Bool>> = Pair(MutableLiveData<String>(), MutableLiveData<Bool>(false))
-	var transport = MutableLiveData<Int>(0)
+	var transport = MutableLiveData<Int>(2)
 	var transportOptionKeys = ["udp","tcp","tls"]
 	var proxy: Pair<MutableLiveData<String>, MutableLiveData<Bool>> = Pair(MutableLiveData<String>(), MutableLiveData<Bool>(true))
 
@@ -65,7 +65,8 @@ class LoginSipAccountViewModel : FlexiApiPushAccountCreationViewModel {
 			clonedAccountParams.expires = expiration
 			clonedAccountParams.transport = accountCreator.transport
 			if (!TextUtils.isEmpty(proxy) ) {
-				if let address = try?Factory.Instance.createAddress(addr: (accountCreator.transport == .Tls ? "sips:" : "sip:") + proxy! + ";transport="+transports[accountCreator.transport.rawValue]) {
+				let cleanProxy =  proxy?.hasPrefix("sip") == true ? proxy?.replacingOccurrences(of: "sip:",with: "").replacingOccurrences(of: "sips:",with: "") : proxy
+				if let address = try?Factory.Instance.createAddress(addr: (accountCreator.transport == .Tls ? "sips:" : "sip:") + cleanProxy! + ";transport="+transports[accountCreator.transport.rawValue]) {
 					try?clonedAccountParams.setRoutesaddresses(newValue: [address])
 				}
 			}

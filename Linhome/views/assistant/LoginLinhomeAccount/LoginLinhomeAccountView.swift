@@ -52,6 +52,7 @@ class LoginLinhomeAccountView: CreatorAssistantView {
 			if (model.valid()) {
 				self.showProgress()
 				self.hideKeyBoard()
+				login.isEnabled = false
 				model.accountCreatorResult.observeOnce(onChange: { response in
 					self.hideProgress()
 					if (response == .AccountExist) {
@@ -65,10 +66,12 @@ class LoginLinhomeAccountView: CreatorAssistantView {
 									try?Core.get().start()
 								}
 							} else {
+								login.isEnabled = true
 								userNameInput.setError(Texts.get("linhome_account_login_failed_unknown_user_or_wroong_password"))
 							}
 						}
 					} else {
+						login.isEnabled = true
 						userNameInput.setError(Texts.get("linhome_account_login_failed_unknown_user_or_wroong_password"))
 					}
 				})

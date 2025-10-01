@@ -34,7 +34,9 @@ class CreateLinhomeAccountViewModel : CreatorAssistantViewModel {
 	// New api for account creation
 	var accountManagerServices: AccountManagerServices? = try?Core.get().createAccountManagerServices()
 	var accountManagerServicesRequestListener: AccountManagerServicesRequestDelegateStub? = nil
-
+	var requestOtp = MutableLiveData<Bool>()
+	var otpError = MutableLiveData<Bool>()
+	var identity: Address? = nil
 	
 	init() {
 		super.init(defaultValuePath: CorePreferences.them.linhomeAccountDefaultValuesPath)
@@ -43,51 +45,64 @@ class CreateLinhomeAccountViewModel : CreatorAssistantViewModel {
 			onRequestSuccessful: { (request: AccountManagerServicesRequest, data: String) ->Void in
 				if request.type == .CreateAccountUsingToken {
 					DispatchQueue.main.async {
-						self.creatorDelegate?.onCreateAccount(creator: self.accountCreator, status: .AccountCreated, response: "")
+						self.linhomeAccountCreateProxyConfig( checkRegistration: false,registrationOk: nil)
+						if let identity = try?Factory.Instance.createAddress(addr: data) {
+							self.identity = identity
+							let request = try?self.accountManagerServices?.createSendEmailLinkingCodeByEmailRequest(
+								sipIdentity: identity,
+								emailAddress: self.email.first.value!
+							)
+							request?.addDelegate(delegate: self.accountManagerServicesRequestListener!)
+							request?.submit()
+						}
 					}
+				} else if request.type == .SendEmailLinkingCodeByEmail {
+					self.requestOtp.value = true
+				} else if request.type == .LinkEmailUsingCode {
+					LinhomeAccount.it.get()?.refreshRegister()
+					self.creationResult.value = AccountCreator.Status.AccountCreated
 				}
 			},
 			onRequestError: { (request: AccountManagerServicesRequest, statusCode: Int, errorMessage: String, parameterErrors: Dictionary?) -> Void in
-				self.creationResult.value = .UnexpectedError
+				if (request.type == .LinkEmailUsingCode) {
+					self.otpError.value = true
+				} else {
+					self.creationResult.value = .UnexpectedError
+				}
 			}
 		)
 		
 		creatorDelegate = AccountCreatorDelegateStub(
 			onCreateAccount:  { (creator:AccountCreator, status:AccountCreator.Status, response:String) -> Void in
-			if (status == AccountCreator.Status.AccountCreated) {
-				Log.info("[Assistant] [Account Creation] Account created")
-				Config.flexiApiToken = nil
-				self.linhomeAccountCreateProxyConfig( checkRegistration: false,registrationOk: nil)
-				self.creationResult.value = status
-			} else if (status == AccountCreator.Status.MissingArguments) {
-				Log.info("[Assistant] [Account Creation] Creation request not authorized, requesting a new token.")
-				Config.flexiApiToken = nil
-				self.requestFlexiApiToken()
-			} else {
-				self.creationResult.value = status
-				Log.error("[Assistant] [Account Creation] fail creating an account \(status)")
-			}
-		},
-			onIsAccountExist: { (creator:AccountCreator, status:AccountCreator.Status, response:String) -> Void in
-			if (status == AccountCreator.Status.AccountExist) {
-				Log.info("[Assistant] [Account Creation] Account exists")
-				self.creationResult.value = status
-			} else if (status == AccountCreator.Status.AccountNotExist) {
-				DispatchQueue.main.async {
-					let request = try?self.accountManagerServices?.createNewAccountUsingTokenRequest(
-						username: self.username.first.value!,
-						password: self.pass1.first.value!,
-						algorithm: CorePreferences.them.passwordAlgo,
-						token: Config.flexiApiToken!
-					)
-					request?.addDelegate(delegate: self.accountManagerServicesRequestListener!)
-					request?.submit()
+				if (status == AccountCreator.Status.MissingArguments) {
+					Log.info("[Assistant] [Account Creation] Creation request not authorized, requesting a new token.")
+					Config.flexiApiToken = nil
+					self.requestFlexiApiToken()
+				} else {
+					self.creationResult.value = status
+					Log.error("[Assistant] [Account Creation] fail creating an account \(status)")
 				}
-			} else {
-				self.creationResult.value = status
-				Log.error("[Assistant] [Account Creation] fail verifying if account exists\(status)")
-			}
-		},
+			},
+			onIsAccountExist: { (creator:AccountCreator, status:AccountCreator.Status, response:String) -> Void in
+				if (status == AccountCreator.Status.AccountExist) {
+					Log.info("[Assistant] [Account Creation] Account exists")
+					self.creationResult.value = status
+				} else if (status == AccountCreator.Status.AccountNotExist) {
+					DispatchQueue.main.async {
+						let request = try?self.accountManagerServices?.createNewAccountUsingTokenRequest(
+							username: self.username.first.value!,
+							password: self.pass1.first.value!,
+							algorithm: CorePreferences.them.passwordAlgo,
+							token: Config.flexiApiToken!
+						)
+						request?.addDelegate(delegate: self.accountManagerServicesRequestListener!)
+						request?.submit()
+					}
+				} else {
+					self.creationResult.value = status
+					Log.error("[Assistant] [Account Creation] fail verifying if account exists\(status)")
+				}
+			},
 			onSendToken: { (creator:AccountCreator, status:AccountCreator.Status, response:String) -> Void in
 				Log.info("[Assistant] [Account Creation] get push token \(status) \(response)")
 				if (status == AccountCreator.Status.RequestTooManyRequests) {
@@ -137,6 +152,16 @@ class CreateLinhomeAccountViewModel : CreatorAssistantViewModel {
 		self.creationResult.value = .UnexpectedError
 	}
 	
+	func validateOtp(code:String) {
+		identity.map {
+			let request = try?accountManagerServices?.createLinkEmailToAccountUsingCodeRequest(
+				sipIdentity: $0,
+				code: code
+			)
+			request?.addDelegate(delegate: accountManagerServicesRequestListener!)
+			request?.submit()
+		}
+	}
 	
 }
 

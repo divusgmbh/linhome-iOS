@@ -23,7 +23,7 @@ import UIKit
 
 class ViewWithModel: UIViewController {
 	
-	private var managedModel: ViewModel? = nil
+	var managedModel: ViewModel? = nil
 	var background, backgroundRotated  : UIView?
 	var rotated = false
 	

@@ -1,21 +1,21 @@
 /*
-* Copyright (c) 2010-2020 Belledonne Communications SARL.
-*
-* This file is part of linhome
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2010-2020 Belledonne Communications SARL.
+ *
+ * This file is part of linhome
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 
 
@@ -33,11 +33,11 @@ class CreateLinhomeAccountView: CreatorAssistantView {
 		
 		viewTitle.setText(textKey: "assistant_create_linhome_account")
 		hideSubtitle()
-
+		
 		
 		let model = CreateLinhomeAccountViewModel()
 		manageModel(model)
-
+		
 		
 		let userNameInput = LTextInput.addOne(titleKey: "username", targetVC: self, keyboardType: UIKeyboardType.default, validator: ValidatorFactory.nonEmptyStringValidator, liveInfo: model.username, inForm: form)
 		let emailInput = LTextInput.addOne(titleKey: "email", targetVC: self, keyboardType: UIKeyboardType.emailAddress, validator: ValidatorFactory.nonEmptyStringValidator, liveInfo: model.email, inForm: form )
@@ -57,6 +57,26 @@ class CreateLinhomeAccountView: CreatorAssistantView {
 			if (model.valid()) {
 				self.showProgress()
 				self.hideKeyBoard()
+				
+				model.requestOtp.observe(onChange: {_ in
+					self.hideProgress()
+					self.requestOtp( confirmFunction: { otp in
+						self.showProgress()
+						model.validateOtp(code: otp)
+					}
+					)
+				})
+				
+				model.otpError.observe(onChange: {_ in
+					self.hideProgress()
+					DialogUtil.confirm(titleTextKey: "otp_error_try_again_title", messageTextKey: "otp_error_try_again_message", confirmAction: {
+						model.requestOtp.value = true
+					}, cancelAction:  {
+						DialogUtil.info("otp_cancelled")
+						NavigationManager.it.navigateTo(childClass: DevicesView.self, asRoot:true)
+					})
+				})
+				
 				model.creationResult.observeOnce(onChange: { status in
 					self.hideProgress()
 					if (status == AccountCreator.Status.AccountExist) {
@@ -75,12 +95,55 @@ class CreateLinhomeAccountView: CreatorAssistantView {
 				model.create()
 			}
 		}
-				
+		
 	}
 	
-	override func viewDidAppear(_ animated: Bool) {
-		//createAccount.moveBelow(form,withTopMargin: 40)
-		super.viewDidAppear(animated)
+	func requestOtp(confirmFunction: @escaping (String) -> Void) {
+		let alert = UIAlertController(
+			title: Texts.get("otp_dialog_title"),
+			message: Texts.get("otp_dialog_message"),
+			preferredStyle: .alert
+		)
+		let confirmAction = UIAlertAction(title: Texts.get("otp_validate"), style: .default) { _ in
+			if let otp = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
+				confirmFunction(otp)
+			}
+		}
+		confirmAction.isEnabled = false
+		alert.addAction(confirmAction)
+		
+		let cancelAction = UIAlertAction(title: Texts.get("cancel"), style: .cancel) { _ in
+			NavigationManager.it.navigateTo(childClass: DevicesView.self, asRoot:true)
+			DialogUtil.info("otp_cancelled")
+		}
+		alert.addAction(cancelAction)
+		
+		alert.addTextField { textField in
+			textField.placeholder = Texts.get("otp_dialog_hint")
+			textField.keyboardType = .numberPad
+			textField.textAlignment = .center
+			textField.autocorrectionType = .no
+			textField.autocapitalizationType = .none
+			
+			NotificationCenter.default.addObserver(
+				forName: UITextField.textDidChangeNotification,
+				object: textField,
+				queue: .main
+			) { _ in
+				if let text = textField.text {
+					if text.count > 4 {
+						textField.text = String(text.prefix(4))
+					}
+					confirmAction.isEnabled = (textField.text?.count == 4)
+				}
+			}
+		}
+		
+		DispatchQueue.main.async {
+			DialogUtil.rootVC().present(alert, animated: true) {
+				alert.textFields?.first?.becomeFirstResponder()
+			}
+		}
 	}
 	
 }

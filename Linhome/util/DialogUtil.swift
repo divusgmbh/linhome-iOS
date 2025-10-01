@@ -24,7 +24,7 @@ import Foundation
 
 class DialogUtil: NSObject {
 	
-	private class func rootVC() -> UIViewController {
+	class func rootVC() -> UIViewController {
 		return UIApplication.getTopMostViewController()!
 	}
 	

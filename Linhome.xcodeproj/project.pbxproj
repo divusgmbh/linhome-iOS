@@ -57,6 +57,9 @@
 		C641ECC6249C937100672832 /* UIButton+extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C641ECC5249C937100672832 /* UIButton+extension.swift */; };
 		C641ECCA249CA44800672832 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C641ECC9249CA44800672832 /* Assets.xcassets */; };
 		C641ECCD249CAD3F00672832 /* linhome_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C641ECCC249CAD3F00672832 /* linhome_icon.png */; };
+		C642276A2E8D7E580094FEDC /* DeviceKit in Frameworks */ = {isa = PBXBuildFile; productRef = C64227692E8D7E580094FEDC /* DeviceKit */; };
+		C642276C2E8D836D0094FEDC /* DeviceKit in Frameworks */ = {isa = PBXBuildFile; productRef = C642276B2E8D836D0094FEDC /* DeviceKit */; };
+		C642276E2E8D837C0094FEDC /* DeviceKit in Frameworks */ = {isa = PBXBuildFile; productRef = C642276D2E8D837C0094FEDC /* DeviceKit */; };
 		C644D5272640601400EF86C2 /* UIDevice+ExtensionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644D5262640601400EF86C2 /* UIDevice+ExtensionApp.swift */; };
 		C644D52B264080FC00EF86C2 /* Device+ExtensionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644D52A264080FC00EF86C2 /* Device+ExtensionApp.swift */; };
 		C646850C24A4A0200045AA4D /* LoginLinhomeAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C646850924A4A0200045AA4D /* LoginLinhomeAccountView.swift */; };
@@ -514,6 +517,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C62D3DF124067A1800328486 /* UserNotificationsUI.framework in Frameworks */,
+				C642276E2E8D837C0094FEDC /* DeviceKit in Frameworks */,
 				C616A75A2E86DB1F00595F80 /* linphonesw in Frameworks */,
 				C62D3DEF24067A1800328486 /* UserNotifications.framework in Frameworks */,
 				FEB0F45576E191754F237C52 /* Pods_LinhomeContentExtension.framework in Frameworks */,
@@ -525,6 +529,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C616A7582E86DB1100595F80 /* linphonesw in Frameworks */,
+				C642276A2E8D7E580094FEDC /* DeviceKit in Frameworks */,
 				C616A75D2E86E1D900595F80 /* linphonesw in Frameworks */,
 				C616A7562E86DB0700595F80 /* linphonesw in Frameworks */,
 				4EA74523A4B30D10DC296211 /* Pods_Linhome.framework in Frameworks */,
@@ -537,6 +542,7 @@
 			files = (
 				DF4CF12A5CFF44F908955339 /* Pods_LinhomeServiceExtension.framework in Frameworks */,
 				C616A75F2E86E2FE00595F80 /* linphonesw in Frameworks */,
+				C642276C2E8D836D0094FEDC /* DeviceKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1190,6 +1196,7 @@
 			mainGroup = C676AD6B24040F6C0048C504;
 			packageReferences = (
 				C616A75B2E86E1D900595F80 /* XCRemoteSwiftPackageReference "linphone-sdk-swift-ios" */,
+				C64227682E8D7E580094FEDC /* XCRemoteSwiftPackageReference "DeviceKit" */,
 			);
 			productRefGroup = C676AD7524040F6C0048C504 /* Products */;
 			projectDirPath = "";
@@ -1376,7 +1383,6 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Linhome/Pods-Linhome-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/DeviceGuru/DeviceGuru.framework",
 				"${BUILT_PRODUCTS_DIR}/DropDown/DropDown.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreInternal/FirebaseCoreInternal.framework",
@@ -1396,7 +1402,6 @@
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DeviceGuru.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DropDown.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreInternal.framework",
@@ -1851,7 +1856,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Linhome/Linhome.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = Z2V957B3D6;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Linhome/app-Info.plist";
@@ -1860,7 +1865,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = org.linhome;
 				PRODUCT_NAME = Linhome;
 				SWIFT_INSTALL_OBJC_HEADER = YES;
@@ -1878,7 +1883,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Linhome/Linhome.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = Z2V957B3D6;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Linhome/app-Info.plist";
@@ -1887,7 +1892,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = org.linhome;
 				PRODUCT_NAME = Linhome;
 				SWIFT_INSTALL_OBJC_HEADER = YES;
@@ -2004,6 +2009,14 @@
 				kind = branch;
 			};
 		};
+		C64227682E8D7E580094FEDC /* XCRemoteSwiftPackageReference "DeviceKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/devicekit/DeviceKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2030,6 +2043,21 @@
 		C616A75E2E86E2FE00595F80 /* linphonesw */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = linphonesw;
+		};
+		C64227692E8D7E580094FEDC /* DeviceKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64227682E8D7E580094FEDC /* XCRemoteSwiftPackageReference "DeviceKit" */;
+			productName = DeviceKit;
+		};
+		C642276B2E8D836D0094FEDC /* DeviceKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64227682E8D7E580094FEDC /* XCRemoteSwiftPackageReference "DeviceKit" */;
+			productName = DeviceKit;
+		};
+		C642276D2E8D837C0094FEDC /* DeviceKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C64227682E8D7E580094FEDC /* XCRemoteSwiftPackageReference "DeviceKit" */;
+			productName = DeviceKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

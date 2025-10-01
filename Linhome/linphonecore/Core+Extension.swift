@@ -25,7 +25,7 @@
 
 import UIKit
 import linphonesw
-import DeviceGuru
+import DeviceKit
 
 struct CoreError: Error {
 	let message: String
@@ -155,10 +155,10 @@ extension Core {
 	}
 	
 	func setUserAgent() {
-		let deviceName: String =  "\(DeviceGuruImplementation().hardware)"
+		let deviceName: String = DeviceKit.Device.current.safeDescription
 		let appName: String = Bundle.main.appName()
-		let iosVersion = UIDevice.current.systemVersion
-		let userAgent = "\(appName) \(Bundle.main.desc())/\(deviceName) (\(iosVersion)) LinphoneSDK"
+		let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+		let userAgent = "\(deviceName) \(appName) \(appVersion) linphone-sdk"
 		let sdkVersion = Core.getVersion
 		setUserAgent(name: userAgent, version: sdkVersion)
 	}

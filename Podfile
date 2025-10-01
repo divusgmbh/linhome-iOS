@@ -14,7 +14,6 @@ def app_pods
 	pod 'SnapKit'
 	pod 'Firebase/Crashlytics'
 	pod 'MarqueeLabel'
-	pod 'DeviceGuru'
 end
 
 target 'Linhome' do
@@ -27,7 +26,6 @@ def ext_pods
 	pod 'Zip'
 	pod 'PocketSVG'
 	pod 'Firebase/Crashlytics'
-	pod 'DeviceGuru'
 end
 
 target 'LinhomeContentExtension' do

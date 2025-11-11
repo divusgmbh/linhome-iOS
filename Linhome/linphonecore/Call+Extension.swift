@@ -29,7 +29,7 @@ extension Call {
 			let earlyMediaCallParams: CallParams = try core.createCallParams(call: self)
 			earlyMediaCallParams.recordFile = callLog!.getHistoryEvent().mediaFileName!
 			cameraEnabled = false
-			earlyMediaCallParams.audioEnabled = false
+			earlyMediaCallParams.audioEnabled = true
 			try acceptEarlyMediaWithParams(params: earlyMediaCallParams)
 			startRecording()
 			sendVfuRequest()

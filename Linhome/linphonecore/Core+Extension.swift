@@ -72,7 +72,7 @@ extension Core {
 			}
 			core.setUserAgent()
 			core.pushNotificationEnabled = true
-			core.callkitEnabled = false
+			//core.callkitEnabled = false
 			return core
 		} catch  {
 			Log.error("Unable to create core \(error)")

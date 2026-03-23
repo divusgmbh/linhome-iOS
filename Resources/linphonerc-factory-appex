@@ -15,8 +15,8 @@ call_logs_search_limit=0
 
 
 [net]
-firewall_policy=stun,ice
-stun_server=stun.linphone.org
+firewall_policy=ice
+stun_server=sip.divus.eu
 
 [sip]
 reject_duplicated_calls=0

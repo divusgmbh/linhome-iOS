@@ -17,7 +17,7 @@ def app_pods
 end
 
 target 'Linhome' do
-	use_frameworks!
+	use_frameworks! :linkage => :static
 	app_pods
 end
 
@@ -29,12 +29,12 @@ def ext_pods
 end
 
 target 'LinhomeContentExtension' do
-	use_frameworks!
+	use_frameworks! :linkage => :static
 	ext_pods
 end
 
 target 'LinhomeServiceExtension' do
-	use_frameworks!
+	use_frameworks! :linkage => :static
 	ext_pods
 end
 

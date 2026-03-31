@@ -36,6 +36,8 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 	var friendListDelegate : FriendListDelegateStub? = nil
 	
 	var model = DevicesViewModel()
+    
+    var coreDelegate: CoreDelegateStub?
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -93,14 +95,27 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 				NavigationManager.it.navigateTo(childClass: DeviceInfoView.self, asRoot: false, argument: device)
 			}
 		}
-		
+        // Catch core start for the case the view is already visible, but core didn't start yet
+        coreDelegate = CoreDelegateStub(
+            onGlobalStateChanged: { [weak self] core, state, message in
+                guard let self = self else { return }
+                if state == .On {
+                    DeviceStore.it.readDevicesFromFriends()
+                    DispatchQueue.main.async {
+                        self.devices.reloadData()
+                        self.noDevices.isHidden = DeviceStore.it.devices.count > 0
+                    }
+                }
+            }
+        )
 	}
 	
 	func setRefresher() {
 		if (devices.refreshControl != nil) {
 			return
 		}
-		let refreshControl = UIRefreshControl()
+        // DEBUGSU REMOVE REFRESH FOR NOT SUPPORTED REMOTE FRIENDS
+		/*let refreshControl = UIRefreshControl()
 		refreshControl.addTarget(self, action: #selector(updateRemotelyProvisionnedDevices), for: .valueChanged)
 		devices.refreshControl = refreshControl
 		friendListDelegate = FriendListDelegateStub ( onSyncStatusChanged:  { list, status, message in
@@ -112,7 +127,7 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 			if (status == .Failure) {
 				DialogUtil.error("vcard_sync_failed")
 			}
-		})
+		})*/
 	}
 	
 	
@@ -136,7 +151,8 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		noDevices.isHidden = DeviceStore.it.devices.count > 0
+		DeviceStore.it.readDevicesFromFriends()
+        noDevices.isHidden = DeviceStore.it.devices.count > 0
 		DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(50)) {
 			self.devices.reloadData()
 		}
@@ -188,8 +204,18 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 		if (DeviceStore.it.serverFriendList != nil) {
 			setRefresher()
 		}
+        
+        if let coreDelegate = coreDelegate {
+            Core.get().addDelegate(delegate: coreDelegate)
+        }
 	}
 	
+    override func viewWillDisappear(_ animated: Bool) {
+        if let coreDelegate = coreDelegate {
+            Core.get().removeDelegate(delegate: coreDelegate)
+        }
+        super.viewWillDisappear(animated)
+    }
 	
 	
 	// UITableView delegates

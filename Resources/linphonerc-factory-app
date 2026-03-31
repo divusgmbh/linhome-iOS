@@ -53,7 +53,7 @@ version_check_url_root=https://sip.divus.eu/linhomereleases
 log_collection_upload_server_url=https://sip.divus.eu/logs
 max_calls=1
 history_max_size=100
-store_friends=0
+store_friends=1
 call_logs_search_limit=0
 
 [rtp]

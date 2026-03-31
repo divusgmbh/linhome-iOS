@@ -169,6 +169,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		requestMirophonePermission()
 		
 		Core.get().addDelegate(delegate: self.coreDelegate!)
+        Core.get().friendListSubscriptionEnabled = false
 		
 		return true
 	}

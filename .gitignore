@@ -11,3 +11,4 @@ Linhome.xcworkspace
 Linhome/GitVersion.swift
 Resources/linhome.zip
 Linhome.xcodeproj/xcuserdata
+.DS_Store

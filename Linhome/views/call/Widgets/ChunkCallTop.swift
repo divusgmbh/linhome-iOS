@@ -35,6 +35,7 @@ class ChunkCallTop: UIViewController {
 		topRightLine.backgroundColor = Theme.getColor("color_c")
 		linhomeLogo.prepare(iconName: "others/linhome_icon", fillColor: "color_c", bgColor: nil)
 		linhomeText.prepare(iconName: "others/linhome_text", fillColor: "color_c", bgColor: nil)
+		linhomeText.isHidden = true
 
 	}
 	

@@ -64,6 +64,8 @@ class DeviceEditorView: MainViewContentWithScrollableForm {
 		}
 		deviceTypeTitle.prepare(styleKey: "section_title",textKey:"device_type_select")
 		let deviceSpinner = LSpinner.addOne(titleKey: nil, targetVC: self, options:model.availableDeviceTypes, liveIndex: model.deviceType, form:form)
+        deviceTypeTitle.isHidden = true;
+        deviceSpinner.view.isHidden = true;
 		
 		
 		

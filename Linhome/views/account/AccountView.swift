@@ -54,6 +54,8 @@ class AccountView: MainViewContentWithScrollableForm {
 				deleteaccount?.onClick {
 					self.gotoFreeSip()
 				}
+                changepass.isHidden = true
+                deleteaccount!.isHidden = true    
 			}
 			let disconnect = UIRoundRectButton(container:contentView, placedBelow:deleteaccount != nil ? deleteaccount! : refresh , effectKey: "secondary_color", tintColor: "color_c", textKey: "menu_disconnect", topMargin: 23, isLastInContainer : true)
 			refresh.onClick {

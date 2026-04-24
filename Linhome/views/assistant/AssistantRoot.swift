@@ -56,6 +56,10 @@ class AssistantRoot: MainViewContentWithScrollableForm {
 		remoteConfig.onClick {
 			self.navigateToComponent(childClass: RemoteRoot.self)
 		}
+        // Remove not used buttons
+        createLinhomeAccount.isHidden = true;
+        loginSip.isHidden = true;
+        remoteConfig.isHidden = true;
 		
 	}
 	

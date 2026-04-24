@@ -63,9 +63,9 @@ class SettingsView: MainViewContent, MFMailComposeViewControllerDelegate {
 		}
 		
 		
-		let _ = SettingSwitch.addOne(titleText: Texts.get("enable_ipv6"), subtitleText: nil, targetVC: self, liveValue: model.enableIpv6, form: form, liveCollapsed: nil)
+		let enableIPv6Switch = SettingSwitch.addOne(titleText: Texts.get("enable_ipv6"), subtitleText: nil, targetVC: self, liveValue: model.enableIpv6, form: form, liveCollapsed: nil)
 		
-		let _ = SettingSpinner.addOne(titleKey: Texts.get("media_encryption"), targetVC: self, liveIndex: model.encryptionIndex, options:model.encryptionLabels, form: form)
+		let mediaEncryptionExpandable = SettingSpinner.addOne(titleKey: Texts.get("media_encryption"), targetVC: self, liveIndex: model.encryptionIndex, options:model.encryptionLabels, form: form)
 		
 		let _ = SettingSwitch.addOne(titleText: Texts.get("enable_debuglogs"), subtitleText: nil, targetVC: self, liveValue: model.enableDebugLogs, form: form)
 		
@@ -92,6 +92,14 @@ class SettingsView: MainViewContent, MFMailComposeViewControllerDelegate {
 		})
 		
 		let _ = SettingSwitch.addOne(titleText: Texts.get("settings_device_show_latest_snapshot"), subtitleText: nil, targetVC: self, liveValue: model.showLatestSnapshot, form: form)
+        
+        // Remove not used entries
+        audioCodecsExpandable.view.isHidden = true;
+        videoCodecsExpandable.view.isHidden = true;
+        enableIPv6Switch.view.isHidden = true;
+        mediaEncryptionExpandable.view.isHidden = true;
+        
+        
 		
 	}
 	

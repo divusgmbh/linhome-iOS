@@ -45,8 +45,9 @@ class AccountView: MainViewContentWithScrollableForm {
 		if (model.account != nil) {
 			let refresh = UIRoundRectButton(container:contentView, placedBelow:form, effectKey: "secondary_color", tintColor: "color_c", textKey: "refresh_registers", topMargin: 0)
 			var deleteaccount : UIRoundRectButton? = nil
+            let disconnect = UIRoundRectButton(container:contentView, placedBelow: refresh, effectKey: "secondary_color", tintColor: "color_c", textKey: "menu_disconnect", topMargin: 23, isLastInContainer : true)
 			if (model.isLinhome()) {
-				let changepass = UIRoundRectButton(container:contentView, placedBelow:refresh, effectKey: "secondary_color", tintColor: "color_c", textKey: "change_password", topMargin: 23)
+				let changepass = UIRoundRectButton(container:contentView, placedBelow:disconnect, effectKey: "secondary_color", tintColor: "color_c", textKey: "change_password", topMargin: 23)
 				deleteaccount = UIRoundRectButton(container:contentView, placedBelow:changepass, effectKey: "secondary_color", tintColor: "color_c", textKey: "delete_account", topMargin: 23)
 				changepass.onClick {
 					self.gotoFreeSip()
@@ -57,7 +58,6 @@ class AccountView: MainViewContentWithScrollableForm {
                 changepass.isHidden = true
                 deleteaccount!.isHidden = true    
 			}
-			let disconnect = UIRoundRectButton(container:contentView, placedBelow:deleteaccount != nil ? deleteaccount! : refresh , effectKey: "secondary_color", tintColor: "color_c", textKey: "menu_disconnect", topMargin: 23, isLastInContainer : true)
 			refresh.onClick {
 				model.refreshRegisters()
 			}
@@ -71,12 +71,12 @@ class AccountView: MainViewContentWithScrollableForm {
 	}
 	
 	
-	func gotoFreeSip() {
-		DialogUtil.confirm(titleTextKey: "account_manage_on_freesip_title", messageTextKey: "account_manage_on_freesip_message", confirmAction: {
-			if let url = URL(string: Config.get().getString(section: "assistant", key: "freesip_url", defaultString: "https://subscribe.linhome.org/login")) {
-				UIApplication.shared.open(url)
-			}
-		})
-	}
+    func gotoFreeSip() {
+        DialogUtil.confirm(titleTextKey: "account_manage_on_freesip_title", messageTextKey: "account_manage_on_freesip_message", confirmAction: {
+            if let url = URL(string: Config.get().getString(section: "assistant", key: "freesip_url", defaultString: "https://sip.divus.eu/login")) {
+                UIApplication.shared.open(url)
+            }
+        })
+    }
 	
 }

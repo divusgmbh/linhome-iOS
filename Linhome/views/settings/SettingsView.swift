@@ -98,9 +98,6 @@ class SettingsView: MainViewContent, MFMailComposeViewControllerDelegate {
         videoCodecsExpandable.view.isHidden = true;
         enableIPv6Switch.view.isHidden = true;
         mediaEncryptionExpandable.view.isHidden = true;
-        
-        
-		
 	}
 	
 	private func shareUploadedLogsUrl(url: String) {

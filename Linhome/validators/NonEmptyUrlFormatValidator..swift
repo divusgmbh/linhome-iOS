@@ -37,8 +37,8 @@ class NonEmptyUrlFormatValidator : GenericStringValidator  {
 	}
 	
 	func validUrl(_ s:String) -> Bool {
-		//let regEx = "((https|http|file|ftp|sftp)://)((\\w|-)+)(([.]|[/])((\\w|-)+))+"
-		let regEx = "(https|http|file|ftp|sftp)://(([^/:.[:space:]]+(.[^/:.[:space:]]+)*)|([0-9](.[0-9]{3})))(:[0-9]+)?((/[^?#[:space:]]+)([^#[:space:]]+)?(#.+)?)?"
+		// DEBUGSU check if old OK let regEx = "(https|http|file|ftp|sftp)://(([^/:.[:space:]]+(.[^/:.[:space:]]+)*)|([0-9](.[0-9]{3})))(:[0-9]+)?((/[^?#[:space:]]+)([^#[:space:]]+)?(#.+)?)?"
+		let regEx = "((https|http|file|ftp|sftp)://)((\\w|-)+)(([.]|[/])((\\w|-)+))+"		
 		let predicate = NSPredicate(format: "SELF MATCHES %@", argumentArray: [regEx])
 		return predicate.evaluate(with: s)
 	}

@@ -36,9 +36,9 @@ class AssistantRoot: MainViewContentWithScrollableForm {
 		viewSubtitle.setText(textKey: "assistant_welcome_subtitle")
 		
 		let createLinhomeAccount = UIRoundRectButton(container:contentView, placedBelow:form, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_create_linhome_account", topMargin: 0)
-		let loginLinhome = UIRoundRectButton(container:contentView, placedBelow:createLinhomeAccount, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_use_linhome_account", topMargin: 23)
+		let loginLinhome = UIRoundRectButton(container:contentView, placedBelow:createLinhomeAccount, effectKey: "secondary_color", tintColor: "color_c", textKey: "login", topMargin: 23)
 		let loginSip = UIRoundRectButton(container:contentView, placedBelow:loginLinhome, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_use_sip_account", topMargin: 23)
-		let remoteConfig = UIRoundRectButton(container:contentView, placedBelow:loginSip, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_remote_prov", topMargin: 23, isLastInContainer : true)
+		let remoteConfig = UIRoundRectButton(container:contentView, placedBelow:loginSip, effectKey: "secondary_color", tintColor: "color_c", textKey: "assistant_remote_prov", topMargin: 23, isLastInContainer : false)
 		
 		
 		createLinhomeAccount.onClick {
@@ -56,12 +56,55 @@ class AssistantRoot: MainViewContentWithScrollableForm {
 		remoteConfig.onClick {
 			self.navigateToComponent(childClass: RemoteRoot.self)
 		}
+        
         // Remove not used buttons
         createLinhomeAccount.isHidden = true;
         loginSip.isHidden = true;
         remoteConfig.isHidden = true;
-		
+        
+        // Add register hint with clickable url to scrollView
+        self.addRegisterHint(elementAbove: remoteConfig, isLastInContainer: true, container: contentView)
+        
 	}
+    
+    private func addRegisterHint(elementAbove : UIView, isLastInContainer: Bool, container: UIView,) {
+        // register hint text
+        let registerHintText = UILabel()
+        registerHintText.numberOfLines = 4
+        registerHintText.setText(textKey: "register_hint_text")
+        registerHintText.prepare(styleKey: "view_sub_title")
+        container.addSubview(registerHintText)
+        registerHintText.snp.makeConstraints { make in
+            make.top.equalTo(elementAbove.snp.bottom).offset(-20)
+            make.centerX.equalTo(view.snp.centerX)
+            make.left.equalTo(container).offset(20)
+            make.right.equalTo(container).offset(20)
+            make.height.equalTo(40)
+        }
+        // register hint URL
+        let registerHintUrl = UILabel()
+        container.addSubview(registerHintUrl)
+        registerHintUrl.snp.makeConstraints { make in
+            make.top.equalTo(registerHintText.snp.bottom).offset(33)
+            make.centerX.equalTo(container.snp.centerX)
+            make.height.equalTo(40)
+            make.leftMargin.rightMargin.equalTo(20)
+            make.width.lessThanOrEqualTo(320)
+            if (isLastInContainer) {
+                make.bottom.equalTo(container.snp.bottom).offset(-20)
+            }
+        }
+        registerHintUrl.prepare(styleKey: "view_sub_title")
+        let underlineAttribute = [NSAttributedString.Key.underlineStyle: NSUnderlineStyle.thick.rawValue]
+        let registerHintUrlAttributedString = NSAttributedString(string: Texts.get("register_hint_url"), attributes: underlineAttribute)
+        registerHintUrl.attributedText = registerHintUrlAttributedString
+        registerHintUrl.isUserInteractionEnabled = true;
+        registerHintUrl.onClick {
+            if let url = URL(string: Texts.get("register_hint_link")) {
+                UIApplication.shared.open(url)
+            }
+        }
+    }
 	
 	private func navigateToComponent(childClass: ViewWithModel.Type) {
 		if (LinhomeAccount.it.configured()) {

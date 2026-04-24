@@ -9,11 +9,11 @@
     <entry name="reg_expires" overwrite="true">31536000</entry>
     <entry name="reg_identity" overwrite="true">sip:?@sip.divus.eu</entry>
     <entry name="reg_proxy" overwrite="true">&lt;sip:sip.divus.eu;transport=tcp&gt;</entry>
-	<entry name="reg_route" overwrite="true">&lt;sip:sip.divus.eu;transport=tcp&gt;</entry>
+    <entry name="reg_route" overwrite="true">&lt;sip:sip.divus.eu;transport=tcp&gt;</entry>
     <entry name="reg_sendregister" overwrite="true">1</entry>
     <entry name="nat_policy_ref" overwrite="true">nat_policy_default_values</entry>
     <entry name="realm" overwrite="true">sip.divus.eu</entry>
-	<entry name="push_notification_allowed" overwrite="true">0</entry>
+	<entry name="push_notification_allowed" overwrite="true">1</entry>
 	<entry name="remote_push_notification_allowed" overwrite="true">1</entry>
   </section>
   <section name="nat_policy_default_values">
@@ -31,6 +31,7 @@
     <entry name="username_regex" overwrite="true">^[a-z0-9+_.\-]*$</entry>
   </section>
   <section name="misc">
-      <entry name="contacts-vcard-list" overwrite="true">https://subscribe.linhome.org/contacts/vcard</entry>
+      <entry name="history_max_size">100</entry> 
+      <entry name="contacts-vcard-list" overwrite="true"></entry>
   </section>
 </config>

@@ -7,7 +7,7 @@ debug=1
 app_group_name=group.eu.divus.videophonemobile
 
 ## Apple team ID (used for push notifications)
-team_id=Z2V957B3D6
+team_id=K24U7C2CWL
 
 
 ## Category name as set inside the content extension plist file, used in setNotificationCategories inside app delegate and used in ServiceExtension to route the notif (bestAttemptContent.categoryIdentifier)

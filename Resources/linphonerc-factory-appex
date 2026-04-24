@@ -1,5 +1,6 @@
 [app]
 debug=1
+push_notification=1
 
 [rtp]
 audio_rtp_port=-1
@@ -10,7 +11,7 @@ usage_hint=0
 playback_gain_db=0
 
 [misc]
-max_calls=5
+max_calls=1
 call_logs_search_limit=0
 
 

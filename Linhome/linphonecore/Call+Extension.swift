@@ -29,9 +29,19 @@ extension Call {
 			let earlyMediaCallParams: CallParams = try core.createCallParams(call: self)
 			earlyMediaCallParams.recordFile = callLog!.getHistoryEvent().mediaFileName!
 			cameraEnabled = false
-			muteAudioPLayBack()
+            muteAudioPLayBack()
+            earlyMediaCallParams.videoEnabled = true
+			earlyMediaCallParams.audioEnabled = true
+            earlyMediaCallParams.audioDirection = MediaDirection.RecvOnly
+            earlyMediaCallParams.videoDirection = MediaDirection.RecvOnly
+            earlyMediaCallParams.micEnabled = false
+            earlyMediaCallParams.earlyMediaSendingEnabled = true
+            earlyMediaCallParams.cameraEnabled = false
 			try acceptEarlyMediaWithParams(params: earlyMediaCallParams)
-			startRecording()
+            if(!isRecording){
+                startRecording()
+            }
+			sendVfuRequest()
 		} catch {
 			Log.error("[extendedAcceptEarlyMedia] exception \(error) ")
 		}
@@ -42,13 +52,21 @@ extension Call {
 			let inCallParams: CallParams = try!core.createCallParams(call: self)
 			inCallParams.recordFile = callLog!.getHistoryEvent().mediaFileName!
 			cameraEnabled = false
-			unMuteAudioPLayBack()
+			inCallParams.audioEnabled = true
+            inCallParams.videoEnabled = true
+            inCallParams.cameraEnabled = false
+            inCallParams.audioDirection = MediaDirection.SendRecv
+            inCallParams.videoDirection = MediaDirection.SendRecv
+            microphoneVolumeGain = 1.0
+            unMuteAudioPLayBack()
 			if let device = DeviceStore.it.findDeviceByAddress(address: remoteAddress!) {
 				Core.get().useRfc2833ForDtmf = device.actionsMethodType == "method_dtmf_rfc_4733"
 				Core.get().useInfoForDtmf = device.actionsMethodType == "method_dtmf_sip_info"
 			}
 			try acceptWithParams(params: inCallParams)
-			startRecording()
+            if(!isRecording){
+                startRecording()
+            }
 		} catch {
 			Log.error("[extendedAccept] exception \(error) ")
 		}

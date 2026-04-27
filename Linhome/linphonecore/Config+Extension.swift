@@ -63,6 +63,9 @@ extension Config {
 	static let defaultUsername =  Config.get().getString(section: "app", key: "user", defaultString: "")
 	static let defaultPass =  Config.get().getString(section: "app", key: "pass", defaultString: "")
 	
+	// CallKit mode
+	static let useInAppCallKit: Bool = true
+
 	// Push related
 	static let pushNotificationsInterval =  Config.get().getInt(section: "net", key: "pn-call-remote-push-interval", defaultValue: 3)
 	static let PUSH_GW_ID_KEY = "linhome_pushgateway"

@@ -26,6 +26,7 @@
 import UIKit
 import linphonesw
 import DeviceKit
+import PushKit
 
 struct CoreError: Error {
 	let message: String
@@ -42,6 +43,7 @@ extension Core {
 	private static var _instance : Core?
 	public static var iterateTimers:[String:Timer] = [:]
 	public static var pushToken : String?
+    public static var voipToken : String?
 	
 	
 	public static func get(autoIterate:Bool = true) -> Core { // Singleton initiatlisation
@@ -53,10 +55,10 @@ extension Core {
 	
 	public static func getNewOne(autoIterate:Bool = true) -> Core? { // Singleton initiatlisation
 		do {
-			let config = Config.get()
-			config.setString(section: "sound", key: "local_ring", value: nil)
+            let config = Config.get()
+            config.setString(section: "sound", key: "local_ring", value: nil)
 			config.setString(section:"storage", key: "call_logs_db_uri",value: FileUtil.sharedContainerUrl().path + "/call_logs.db")
-			let core = try Factory.Instance.createSharedCoreWithConfig(config: config, systemContext: nil, appGroupId: Config.appGroupName, mainCore: !runsInsideExtension() ) // Shared core makes use of the shared space in AppGroup.
+            let core = try Factory.Instance.createSharedCoreWithConfig(config: config, systemContext: nil, appGroupId: Config.appGroupName, mainCore: !runsInsideExtension() ) // Shared core makes use of the shared space in AppGroup.
 			core.autoIterateEnabled = autoIterate
 			core.disableChat(denyReason: .NotImplemented)
 			core.nativeRingingEnabled = false
@@ -71,8 +73,43 @@ extension Core {
 				iterateTimers["\(core)"] = Timer.scheduledTimer(timeInterval: 0.02, target: core, selector: #selector(myIterate), userInfo: nil, repeats: true)
 			}
 			core.setUserAgent()
-			core.pushNotificationEnabled = true
-			//core.callkitEnabled = false
+            if(Config.useInAppCallKit){
+                core.pushNotificationEnabled = false  // app owns PKPushRegistry and handles itself the voip push part
+            }else{
+                core.pushNotificationEnabled = true
+            }
+			core.callkitEnabled = false  // app manages its own CXProvider
+            
+            if let account = core.defaultAccount, let params = account.params!.clone() {
+                if(Config.useInAppCallKit){
+                    params.addCustomParam(key: "pn-msg-str", value: "VOIP")
+                    params.addCustomParam(key: "pn-call-str", value: "VOIP")
+                    params.pushNotificationAllowed = true
+                    params.remotePushNotificationAllowed = false
+                    params.pushNotificationConfig?.provider = Config.pushProvider
+                    params.pushNotificationConfig?.teamId = Config.teamID
+                    params.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier ?? "").voip"
+                    params.contactUriParameters =
+                    "pn-provider=\(Config.pushProvider);" +
+                                "pn-prid=\(Core.voipToken);" +
+                                "pn-param=\(Config.teamID).\(Bundle.main.bundleIdentifier!).voip;" +
+                                "pn-silent=1;pn-timeout=0"
+                }else{
+                    params.remotePushNotificationAllowed = true
+                    params.pushNotificationAllowed = true
+                    params.pushNotificationConfig?.provider = Config.pushProvider
+                    params.pushNotificationConfig?.teamId = Config.teamID
+                    params.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier ?? "").remote"
+                }
+                account.params = params
+            }
+
+            // DEBUGSU CHECK IF REALLY REQUIRED HERE: If waking from a background push, force a Register immediately
+            if (runsInsideExtension() || !core.isNetworkReachable) {
+                core.networkReachable = true
+                core.refreshRegisters()
+            }
+            
 			return core
 		} catch  {
 			Log.error("Unable to create core \(error)")
@@ -166,11 +203,24 @@ extension Core {
 	public func configurePushNotifications(_ deviceToken:Data) { // Should be called by the app when a push token is made abvailable. It adds it to the default proxy config.
 		Core.pushToken = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
 		Log.info("Push token received from device:"+Core.pushToken!)
-		didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: Core.pushToken)
+		//DEBUGSU CHECK IF WORKING FIX 752d90a
+        didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: Core.pushToken)
+        //didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: "\(Core.pushToken):remote")
 		Core.get().accountList.forEach { account in
 			account.configurePushNotificationParameters()
 		}
 	}
+    
+    public func configureVoIPPushNotifications(_ deviceToken: PKPushCredentials) { // Should be called by the app when a push token is made abvailable. It adds it to the default proxy config.
+        Core.voipToken = deviceToken.token.map { String(format: "%02.2hhx", $0) }.joined()
+        Log.info("VoIP Push token received from device:"+Core.voipToken!)
+        //DEBUGSU CHECK IF WORKING FIX 752d90a
+        didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: Core.voipToken)
+        //didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: "\(Core.voipToken):remote")
+        Core.get().accountList.forEach { account in
+            account.configurePushNotificationParameters()
+        }
+    }
 	
 	func cleanHistory() {
 		callLogs.forEach {it in
@@ -180,6 +230,5 @@ extension Core {
 			removeCallLog(callLog: it)
 		}
 	}
-	
 }
 

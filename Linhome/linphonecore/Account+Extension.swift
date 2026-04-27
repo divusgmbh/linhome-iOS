@@ -23,13 +23,36 @@ import linphonesw
 
 extension Account {
 	
-	public func configurePushNotificationParameters() {
+    public func configurePushNotificationParameters() {
 		params?.clone().map {newParams in
-			newParams.pushNotificationConfig?.provider = Config.pushProvider
-			newParams.pushNotificationConfig?.remotePushInterval = "\(Config.pushNotificationsInterval)"
-			newParams.pushNotificationAllowed = false // Disable PushKit (CallKit notifications)
-			newParams.remotePushNotificationAllowed = true // Enable Remote notifications
-			newParams.pushNotificationConfig?.voipToken = nil // Forces removal of voip notification service in SDK.
+            if(Config.useInAppCallKit){
+                newParams.addCustomParam(key: "pn-msg-str", value: "VOIP")
+                newParams.addCustomParam(key: "pn-call-str", value: "VOIP")
+                newParams.pushNotificationConfig?.provider = Config.pushProvider
+                newParams.pushNotificationConfig?.remotePushInterval = "\(Config.pushNotificationsInterval)"
+                newParams.pushNotificationAllowed = true
+                newParams.remotePushNotificationAllowed = false
+                newParams.pushNotificationConfig?.teamId = Config.teamID
+                newParams.pushNotificationConfig?.bundleIdentifier = Bundle.main.bundleIdentifier
+                newParams.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier!).voip"
+                newParams.pushNotificationConfig?.voipToken = Core.voipToken
+                if let voipToken = Core.voipToken {
+                    newParams.contactUriParameters =
+                    "pn-provider=\(Config.pushProvider);" +
+                    "pn-prid=\(voipToken);" +
+                    "pn-param=\(Config.teamID).\(Bundle.main.bundleIdentifier!).voip;" +
+                    "pn-silent=1;pn-timeout=0"
+                }
+            }else{
+                newParams.pushNotificationConfig?.provider = Config.pushProvider
+                newParams.pushNotificationConfig?.remotePushInterval = "\(Config.pushNotificationsInterval)"
+                newParams.pushNotificationAllowed = true
+                newParams.remotePushNotificationAllowed = true // Enable Remote notifications
+                newParams.pushNotificationConfig?.teamId = Config.teamID
+                newParams.pushNotificationConfig?.bundleIdentifier = Bundle.main.bundleIdentifier
+                newParams.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier!).remote"
+                newParams.pushNotificationConfig?.voipToken = nil // Forces removal of voip notification service in SDK.
+            }
 			params = newParams
 		}
 		refreshRegister()

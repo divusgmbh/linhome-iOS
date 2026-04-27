@@ -136,6 +136,7 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 		if (Core.get().isNetworkReachable != true) {
 			refreshControl.endRefreshing()
 			DialogUtil.error("no_network")
+			return
 		}
 		
 		if (Core.get().callsNb > 0 ) {

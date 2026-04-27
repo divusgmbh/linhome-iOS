@@ -53,7 +53,10 @@ class NavigationManager {
 	}
 	
 	func navigateTo<T>(childClass: T.Type, asRoot:Bool = false, argument:Any? = nil) where T: ViewWithModel {
-		do {
+        if(UIApplication.shared.applicationState == .background){
+            return
+        }
+        do {
 			if (playerViewDisplaying) {
 				navigateUp()
 			}

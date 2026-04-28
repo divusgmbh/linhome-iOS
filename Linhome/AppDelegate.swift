@@ -275,8 +275,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 	
 	func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let apnsToken = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        Log.info("Regular APNs token: \(apnsToken)")
-		DispatchQueue.main.async() {
+        DispatchQueue.main.async() {
             if(!Config.useInAppCallKit){
                 Core.get().configurePushNotifications(deviceToken)
             }

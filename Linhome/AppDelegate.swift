@@ -116,7 +116,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 					SVProgressHUD.dismiss()
 					let openFiles = FileUtil.openFilePaths()
 					Log.debug("Open file descriptors: limit = \(FileUtil.getNofFileLimit()) count=\(openFiles.count) FDs : \n \(openFiles)")
-                    self.closeCallKit(call: call)
+                    if(Config.useInAppCallKit) {
+                        self.closeCallKit(call: call)
+                    }
 				}
 				
 				if (cstate == Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background
@@ -143,12 +145,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 				}
 				
 				if ([Call.State.IncomingReceived, Call.State.IncomingEarlyMedia].contains(call.state)) {
-                    if let callId = call.callLog?.callId, self.callKitAcceptedCallIds.contains(callId) {
-						Log.info("Accepting call answered via CallKit before INVITE arrived: \(callId)")
-                        self.callKitAcceptedCallIds.remove(callId)
-						call.extendedAccept(core: Core.get())
-						return
-					}
+                    if(Config.useInAppCallKit){
+                        if let callId = call.callLog?.callId, self.callKitAcceptedCallIds.contains(callId) {
+                            Log.info("Accepting call answered via CallKit before INVITE arrived: \(callId)")
+                            self.callKitAcceptedCallIds.remove(callId)
+                            call.extendedAccept(core: Core.get())
+                            return
+                        }
+                    }
 					if let callId = call.callLog?.callId, let userDefaults = UserDefaults(suiteName: Config.appGroupName), userDefaults.bool(forKey: "accepted_calls_via_notif_"+callId) {
 						Log.info("Accepting call Id in app (accept button pressed on notif) : \(callId)")
 						if (GSMActivityHelper.it.ongoingGSMCall.value == true) {
@@ -197,9 +201,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		Core.get().addDelegate(delegate: self.coreDelegate!)
         Core.get().friendListSubscriptionEnabled = false
         
-        if(Config.useInAppCallKit){
-            Core.get().addDelegate(delegate: self)
-        }
 		return true
 	}
 
@@ -484,8 +485,9 @@ extension AppDelegate: PKPushRegistryDelegate {
         let update = CXCallUpdate()
         update.remoteHandle = CXHandle(type: .generic, value: displayName)
         update.localizedCallerName = displayName
-        update.hasVideo = false
+        update.hasVideo = true
         update.supportsHolding = false
+        update.supportsDTMF = true
 
         provider.reportNewIncomingCall(with: uuid, update: update) { error in
             if let error = error {
@@ -542,65 +544,4 @@ extension AppDelegate: CXProviderDelegate {
     func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
         Core.get().activateAudioSession(activated: false)
     }
-}
-
-extension AppDelegate: CoreDelegate {
-    /*func onPushNotificationReceived(core: Core, payload: String) {
-        Log.info("SDK signalled VoIP push received, CallKit already reported")
-        
-        DialogUtil.info("Incoming voip push")
-        Log.info("VoIP push received in app delegate: \(payload)")
-        
-        guard let data = payload.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                Log.error("Could not parse push payload as JSON")
-                return
-        }
-
-        let aps = json["aps"] as? [String: Any]
-        let callId = (aps?["call-id"] as? String) ?? UUID().uuidString
-        let displayName = json["display-name"] as? String ?? "Incoming Call"
-
-        // Deduplicate: SDK's internal PKPushRegistry (pushNotificationEnabled=true) may also
-        // receive this same push. Only report to CallKit once per call-id.
-        let alreadyReported = pendingCallKitIds.values.contains(callId)
-        Log.info("VoIP push callId=\(callId) alreadyReported=\(alreadyReported)")
-
-        // iOS 13+ kills the app if reportNewIncomingCall is not called synchronously here.
-        // Always call completion(), even if we skip reporting (already handled).
-        guard !alreadyReported, let provider = callKitProvider else {
-            if alreadyReported {
-                Log.info("CallKit already reported for callId=\(callId), skipping duplicate")
-            } else {
-                Log.error("callKitProvider is nil — cannot report incoming call to CallKit")
-            }
-            return
-        }
-
-        let uuid = UUID()
-        pendingCallKitIds[uuid] = callId
-
-        let update = CXCallUpdate()
-        update.remoteHandle = CXHandle(type: .generic, value: displayName)
-        update.localizedCallerName = displayName
-        update.hasVideo = true
-        update.supportsHolding = false
-
-        provider.reportNewIncomingCall(with: uuid, update: update) { error in
-            if let error = error {
-                Log.error("reportNewIncomingCall failed: \(error)")
-                self.pendingCallKitIds.removeValue(forKey: uuid)
-            }
-        }
-
-        // Wake the SIP core so the INVITE can arrive and be matched to this CallKit call
-        if Core.get().globalState != .On {
-            UserDefaults(suiteName: Config.appGroupName)?.setValue(0, forKey: "ACTIVE_SHARED_CORE")
-            try? Core.get().start()
-        }
-        Core.get().accountList.forEach { $0.refreshRegister() }
-         
-        
-
-    }*/
 }

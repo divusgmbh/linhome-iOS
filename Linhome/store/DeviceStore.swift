@@ -69,20 +69,25 @@ class DeviceStore {
 			},
 			onFriendListCreated : { (core, list) in
 				Log.info("[DeviceStore] friend list created. \(list.displayName)")
-				if let remoteFlName = Config.vcardListUrl, remoteFlName == list.displayName {
-					self.serverFriendList = list
-					list.addDelegate(delegate: self.serverFriendListDelegate!)
-				}
+                if (Config.enabledRemoteVcards) {
+                    if let remoteFlName = Config.vcardListUrl, remoteFlName == list.displayName {
+                        self.serverFriendList = list
+                        list.addDelegate(delegate: self.serverFriendListDelegate!)
+                    }
+                }
 				if (core.globalState == .On) {
 					self.readDevicesFromFriends()
 				}
 			},
 			onFriendListRemoved : { (core, list) in
 				Log.info("[DeviceStore] friend list removed. \(list.displayName)")
-				if let remoteFlName = Config.vcardListUrl, remoteFlName == list.displayName {
-					self.serverFriendList = nil
-					self.readDevicesFromFriends()
-				}
+                if (Config.enabledRemoteVcards) {
+                    if let remoteFlName = Config.vcardListUrl, remoteFlName == list.displayName {
+                        self.serverFriendList = nil
+                    }
+                } else {
+                    self.readDevicesFromFriends()
+                }
 			}
 		)
 		serverFriendListDelegate = FriendListDelegateStub ( onSyncStatusChanged:  { list, status, message in
@@ -107,21 +112,25 @@ class DeviceStore {
 		self.saveLocalDevices()
 		self.readDevicesFromFriends()
 		try? FileManager.default.removeItem(atPath: self.devicesXml)
-		fetchVCards()
+        if (Config.enabledRemoteVcards) {
+            fetchVCards()
+        }
 		Log.info("[DeviceStore] migration done")
 	}
 	
 	func fetchVCards() {
-		let isLinhomeAccount = Core.get().accountList.filter{$0.params?.idkey != Config.PUSH_GW_ID_KEY}.first?.params?.domain == CorePreferences.them.loginDomain
-		if (isLinhomeAccount) {
-			Log.info("[DeviceStore] fetching vCards")
-			Core.get().config?.setString(section: "misc", key: "contacts-vcard-list", value: "https://subscribe.linhome.org/contacts/vcard")
-			try?Core.get().config?.sync()
-			Core.get().stop()
-			try?Core.get().start()
-		} else {
-			Log.info("[DeviceStore] No vards to fetch, as account not from the main domain \(CorePreferences.them.loginDomain)")
-		}
+        if (Config.enabledRemoteVcards) {
+            let isLinhomeAccount = Core.get().accountList.filter{$0.params?.idkey != Config.PUSH_GW_ID_KEY}.first?.params?.domain == CorePreferences.them.loginDomain
+            if (isLinhomeAccount) {
+                Log.info("[DeviceStore] fetching vCards")
+                Core.get().config?.setString(section: "misc", key: "contacts-vcard-list", value: nil)
+                try?Core.get().config?.sync()
+                Core.get().stop()
+                try?Core.get().start()
+            } else {
+                Log.info("[DeviceStore] No vards to fetch, as account not from the main domain \(CorePreferences.them.loginDomain)")
+            }
+        }
 	}
 	
 	
@@ -136,17 +145,19 @@ class DeviceStore {
 			Log.info("[DeviceStore] found local device : \(device)")
 			self.devices.append(device)
 		}
-		serverFriendList?.friends.forEach { friend in
-			guard let card: Vcard = friend.vcard, card.isValid() else {
-				Log.error("[DeviceStore] received invalid or malformed vCard from remote : \(friend.vcard?.asVcard4String() ?? "nil")")
-				return
-			}
-			let device = Device(card: card, isRemotelyProvisionned: true)
-			if (self.devices.filter { $0.address == device.address}.count == 0) {
-				Log.info("[DeviceStore] found remotely provisionned device : \(device)")
-				self.devices.append(device)
-			}
-		}
+        if (Config.enabledRemoteVcards) {
+            serverFriendList?.friends.forEach { friend in
+                guard let card: Vcard = friend.vcard, card.isValid() else {
+                    Log.error("[DeviceStore] received invalid or malformed vCard from remote : \(friend.vcard?.asVcard4String() ?? "nil")")
+                    return
+                }
+                let device = Device(card: card, isRemotelyProvisionned: true)
+                if (self.devices.filter { $0.address == device.address}.count == 0) {
+                    Log.info("[DeviceStore] found remotely provisionned device : \(device)")
+                    self.devices.append(device)
+                }
+            }
+        }
 		self.devices.forEach {
 			DeviceStore.userDefaults.set( $0.name , forKey: "cached_device_names_"+$0.address)
 		}
@@ -189,11 +200,20 @@ class DeviceStore {
 		}
 		devices.sort()
 		devices.forEach { device in
-			if let friend = device.friend, !device.isRemotelyProvisionned {
-				if (Core.get().getFriendListByName(name:local_devices_fl_name)?.addFriend(linphoneFriend: friend) != .OK) {
-					Log.error("[DeviceStore] unable to save device to local friend list.")
-				}
-			}
+            if (Config.enabledRemoteVcards) {
+                if let friend = device.friend, !device.isRemotelyProvisionned {
+                    if (Core.get().getFriendListByName(name:local_devices_fl_name)?.addFriend(linphoneFriend: friend) != .OK) {
+                        Log.error("[DeviceStore] unable to save device to local friend list.")
+                    }
+                }
+            }else{
+                if let friend = device.friend {
+                    device.isRemotelyProvisionned = false
+                    if (Core.get().getFriendListByName(name:local_devices_fl_name)?.addFriend(linphoneFriend: friend) != .OK) {
+                        Log.error("[DeviceStore] unable to save device to local friend list.")
+                    }
+                }
+            }
 			DeviceStore.userDefaults.set( device.name , forKey: "cached_device_names_"+device.address)
 		}
 	}
@@ -244,10 +264,12 @@ class DeviceStore {
 	}
 	
 	func clearRemoteProvisionnedDevicesUponLogout() {
-		if (serverFriendList != nil) {
-			Log.info("[DeviceStore] removing server friend list (remotely provisionning devices)")
-			Core.get().removeFriendList(list: serverFriendList! )
-			readDevicesFromFriends()
-		}
+        if (Config.enabledRemoteVcards) {
+            if (serverFriendList != nil) {
+                Log.info("[DeviceStore] removing server friend list (remotely provisionning devices)")
+                Core.get().removeFriendList(list: serverFriendList! )
+                readDevicesFromFriends()
+            }
+        }
 	}
 }

@@ -114,20 +114,21 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 		if (devices.refreshControl != nil) {
 			return
 		}
-        // DEBUGSU REMOVE REFRESH FOR NOT SUPPORTED REMOTE FRIENDS
-		/*let refreshControl = UIRefreshControl()
-		refreshControl.addTarget(self, action: #selector(updateRemotelyProvisionnedDevices), for: .valueChanged)
-		devices.refreshControl = refreshControl
-		friendListDelegate = FriendListDelegateStub ( onSyncStatusChanged:  { list, status, message in
-			Log.info("[Devices View] remote list onSyncStatusChanged \(list) \(status) \(message)")
-			if (status == .Successful || status == .Failure) {
-				self.devices.refreshControl?.endRefreshing()
-				list.removeDelegate(delegate: self.friendListDelegate!)
-			}
-			if (status == .Failure) {
-				DialogUtil.error("vcard_sync_failed")
-			}
-		})*/
+        if (Config.enabledRemoteVcards) {
+            let refreshControl = UIRefreshControl()
+            refreshControl.addTarget(self, action: #selector(updateRemotelyProvisionnedDevices), for: .valueChanged)
+            devices.refreshControl = refreshControl
+            friendListDelegate = FriendListDelegateStub ( onSyncStatusChanged:  { list, status, message in
+                Log.info("[Devices View] remote list onSyncStatusChanged \(list) \(status) \(message)")
+                if (status == .Successful || status == .Failure) {
+                    self.devices.refreshControl?.endRefreshing()
+                    list.removeDelegate(delegate: self.friendListDelegate!)
+                }
+                if (status == .Failure) {
+                    DialogUtil.error("vcard_sync_failed")
+                }
+            })
+        }
 	}
 	
 	
@@ -143,11 +144,15 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 			refreshControl.endRefreshing()
 			return
 		}
-		
-		if let serverFriendList = DeviceStore.it.serverFriendList {
-			serverFriendList.addDelegate(delegate: friendListDelegate!)
-			serverFriendList.synchronizeFriendsFromServer()
-		}
+        if (Config.enabledRemoteVcards) {
+            if let serverFriendList = DeviceStore.it.serverFriendList {
+                serverFriendList.addDelegate(delegate: friendListDelegate!)
+                serverFriendList.synchronizeFriendsFromServer()
+            }
+        }else{
+            refreshControl.endRefreshing()
+            return
+        }
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -177,7 +182,7 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 			}
 			self.devices.reloadData()
 			self.noDevices.isHidden = DeviceStore.it.devices.count > 0
-			if (DeviceStore.it.serverFriendList != nil) {
+            if (Config.enabledRemoteVcards && DeviceStore.it.serverFriendList != nil) {
 				self.setRefresher()
 			} else {
 				self.devices.refreshControl = nil
@@ -202,7 +207,7 @@ class DevicesView: MainViewContent, UITableViewDataSource, UITableViewDelegate  
 		
 		NavigationManager.it.mainView?.toolbarViewModel.rightButtonVisible.value = false
 		
-		if (DeviceStore.it.serverFriendList != nil) {
+        if (Config.enabledRemoteVcards && DeviceStore.it.serverFriendList != nil) {
 			setRefresher()
 		}
         

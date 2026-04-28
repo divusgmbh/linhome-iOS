@@ -65,6 +65,8 @@ extension Config {
 	
 	// CallKit mode
 	static let useInAppCallKit: Bool = true
+    // Max. entries in history
+    static let historyMaxCount: Int = 20
 
 	// Push related
 	static let pushNotificationsInterval =  Config.get().getInt(section: "net", key: "pn-call-remote-push-interval", defaultValue: 3)

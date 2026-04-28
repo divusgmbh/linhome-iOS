@@ -100,6 +100,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		coreDelegate = CoreDelegateStub(
 			onGlobalStateChanged: { (core: Core, state: GlobalState, message: String) -> Void in
 				self.coreState.value = state
+                if(state == GlobalState.On) {
+                    HistoryEventStore.it.rotateRecordings(cleanup: true)
+                }
 			},
 			onCallStateChanged : { (lc: Core, call: Call, cstate: Call.State, message: String) -> Void in
 				

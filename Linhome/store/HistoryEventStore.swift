@@ -120,4 +120,80 @@ class HistoryEventStore {
 			persistHistoryEvent(entry: event.value)
 		}
 	}
+    
+    func rotateRecordings(cleanup: Bool){
+        Log.info("[HistoryEventStore] rotating files now")
+        let core = Core.get()
+        if(core.globalState != GlobalState.On){
+            Log.warn("[HistoryEventStore] rotating files not possible, core not ready, current state:\(core.globalState)")
+            return
+        }
+        let max = Config.historyMaxCount
+        let directory = StorageManager.it.callsRecordingsDir
+        
+        var callIdsToRemove = [String]()
+        var filesToKeep = [String]()
+        core.callLogs
+            .sorted(by: { $0.startDate > $1.startDate })
+            .enumerated()
+            .forEach { index, log in
+                if index < max {
+                    let event = log.getHistoryEvent()
+                    filesToKeep.append(event.mediaFileName)
+                    filesToKeep.append(event.mediaThumbnailFileName)
+                } else {
+                    callIdsToRemove.append(log.callId ?? "")
+                }
+            }
+        // Remove from historyevent data
+        callIdsToRemove.forEach { callId in
+            historyEvents.removeValue(forKey: callId)
+            Log.info("[HistoryEventStore] rotate data, remove obsolete event for call id: \(callId)")
+            // remove rom call log
+            if let log = core.workAroundFindCallLogFromCallId(callId: callId) {
+                core.removeCallLog(callLog: log)
+                Log.info("[HistoryEventStore] rotate data, remove obsolete call log for call id: \(callId)")
+            }
+        }
+        
+        //Get all files in the directory, finish if no files available
+        let fileManager = FileManager.default
+        guard let files = try? fileManager.contentsOfDirectory(atPath: directory), !files.isEmpty else {
+            if !callIdsToRemove.isEmpty { sync() }
+            return
+        }
+        
+        // Sort by modification time (Newest First)
+        let filePaths = files.map { directory + $0 }
+        let sortedFiles = filePaths.sorted { path1, path2 in
+            let date1 = (try? fileManager.attributesOfItem(atPath: path1))?[.modificationDate] as? Date ?? Date.distantPast
+            let date2 = (try? fileManager.attributesOfItem(atPath: path2))?[.modificationDate] as? Date ?? Date.distantPast
+            return date1 > date2
+        }
+        
+        // Delete mkv files and according
+        var filesToDelete = [String]()
+        sortedFiles.forEach { filePath in
+            if filesToKeep.contains(filePath) {
+                if filePath.hasSuffix(".mkv") {
+                    //stripAudio(filePath)
+                }
+            } else {
+                filesToDelete.append(filePath)
+            }
+        }
+        filesToDelete.forEach { path in
+            if cleanup {
+                FileUtil.delete(path: path)
+                Log.info("[HistoryEventStore] cleanup files, deleting file: \((path as NSString).lastPathComponent)")
+            } else if !path.lowercased().hasSuffix(".part") {
+                FileUtil.delete(path: path)
+                Log.info("[HistoryEventStore] rotating files, deleting obsolete file: \((path as NSString).lastPathComponent)")
+            }
+        }
+        
+        if !callIdsToRemove.isEmpty {
+            sync()
+        }
+    }
 }

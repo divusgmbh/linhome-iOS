@@ -18,6 +18,7 @@
 */
 
 import Foundation
+import linphonesw
 
 class HistoryEvent {
     var id: String // HistoryEvent for outgoing call must be created before the call is created to set recording path so it can't be the callID
@@ -26,6 +27,9 @@ class HistoryEvent {
 	var mediaFileName: String!
 	var mediaThumbnailFileName: String!
     var hasVideo: Bool = false
+    var isRecordRunning: Bool = false   // Lock-Marker for recording start/stop
+    var recorder: Recorder? = nil   // Recorder for recording
+    var rdTimer: Timer? // Timer for checking record duration
 
 	init () {
 		self.id = xDigitsUUID()

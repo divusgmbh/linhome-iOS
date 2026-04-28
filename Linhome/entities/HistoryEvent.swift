@@ -42,13 +42,16 @@ class HistoryEvent {
 		self.hasVideo = hasVideo
 	}
 	
-	
     func hasMedia() -> Bool {
-		return FileUtil.fileExistsAndIsNotEmpty(path: mediaFileName)
+        return hasMediaThumbnail() || hasMediaVideo()
     }
 
     func hasMediaThumbnail() -> Bool {
 		return FileUtil.fileExistsAndIsNotEmpty(path: mediaThumbnailFileName)
+    }
+    
+    func hasMediaVideo() -> Bool {
+        return FileUtil.fileExistsAndIsNotEmpty(path: mediaFileName)
     }
 
     func persist() {

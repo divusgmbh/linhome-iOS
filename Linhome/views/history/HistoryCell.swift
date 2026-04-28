@@ -84,7 +84,7 @@ class HistoryCell: UITableViewCell {
 		if let historyEvent = model.historyEvent  {
 			thumbnail.isHidden =  !(historyEvent.hasMedia() && historyEvent.hasMediaThumbnail())
 			nomedia.isHidden =  historyEvent.hasMedia()
-			play.isHidden = !(historyEvent.hasMedia())
+			play.isHidden = !(historyEvent.hasMediaVideo())
 			if (historyEvent.hasMediaThumbnail()) {
 				thumbnail.image = UIImage(contentsOfFile: historyEvent.mediaThumbnailFileName)
 			}
@@ -115,7 +115,7 @@ class HistoryCell: UITableViewCell {
 		}
 		
 		contentView.onClick {
-			self.playIt(model: model)
+            self.playIt(model: model)
 		}
 		
 		play.onClick {
@@ -140,6 +140,14 @@ class HistoryCell: UITableViewCell {
 			NavigationManager.it.navigateTo(childClass: PlayerView.self, asRoot: false, argument: model.callLog.callId)
 		}
 	}
+    
+    func showSnapShot(model:HistoryEventViewModel) {
+        if (model.historyViewModel.editing.value!) {
+            model.toggleSelect()
+        } else if (model.historyEvent != nil  && model.historyEvent!.hasMedia()) {
+            NavigationManager.it.navigateTo(childClass: PlayerView.self, asRoot: false, argument: model.callLog.callId)
+        }
+    }
 	
 	
 }

@@ -43,20 +43,22 @@ class PlayerView : ViewWithModel {
 		
 		guard
 			let callId = NavigationManager.it.nextViewArgument as? String,
-			let event = Core.get().workAroundFindCallLogFromCallId(callId: callId)?.getHistoryEvent(),
-			let player = try?Core.get().createLocalPlayer(soundCardName: getSoundCard(), videoDisplayName: "IOSDisplay", windowId: nil) else {
-				NavigationManager.it.navigateUp()
-				return
+            let event = Core.get().workAroundFindCallLogFromCallId(callId: callId)?.getHistoryEvent(),
+            let player = try?Core.get().createLocalPlayer(soundCardName: getSoundCard(), videoDisplayName: "IOSDisplay", windowId: nil)else {
+                NavigationManager.it.navigateUp()
+                return
 		}
-		
-		self.event = event
-		
+        
+        self.event = event
+        
 		HistoryEventStore.it.markAsRead(historyEventId: event.id)
 		
 		self.view.backgroundColor = Theme.getColor("color_j")
 		
-		playerViewModel = PlayerViewModel(callId: callId, player: player)
-		manageModel(playerViewModel!)
+        if ( event.hasMediaVideo() ) {
+            playerViewModel = PlayerViewModel(callId: callId, player: player)
+            manageModel(playerViewModel!)
+        }
 		
 		// Close button
 		
@@ -74,53 +76,73 @@ class PlayerView : ViewWithModel {
 		}
 		
 		// Controls
-		
-		let controls = PlayerControls(viewModel: playerViewModel!)
-		addChild(controls)
-		self.view.addSubview(controls.view)
-		controls.view.snp.makeConstraints { (make) in
-			make.bottom.equalToSuperview().offset(-50)
-			make.left.equalToSuperview().offset(20)
-			make.right.equalToSuperview().offset(-20)
-			make.height.equalTo(40)
-		}
-		controls.didMove(toParent: self)
+        if(event.hasMediaVideo()) {
+            let controls = PlayerControls(viewModel: playerViewModel!)
+            addChild(controls)
+            self.view.addSubview(controls.view)
+            controls.view.snp.makeConstraints { (make) in
+                make.bottom.equalToSuperview().offset(-50)
+                make.left.equalToSuperview().offset(20)
+                make.right.equalToSuperview().offset(-20)
+                make.height.equalTo(40)
+            }
+            controls.didMove(toParent: self)
+        }
 		
 		// Video/Audio view
-		
-		if (event.hasVideo) {
-			let videoView = UIView()
-			videoView.backgroundColor = .black
-			var videoPreviewWidth = UIScreen.main.bounds.size.width * videoPreviewPercentageOfScreenWidth
-			self.view.addSubview(videoView)
-			player.windowId = UnsafeMutableRawPointer(Unmanaged.passRetained(videoView).toOpaque())
-			
-			videoView.layer.cornerRadius = CGFloat(Customisation.it.themeConfig.getFloat(section: "arbitrary-values", key: "video_view_corner_radius", defaultValue: 20.0))
-			videoView.clipsToBounds = true
-			if (event.hasMediaThumbnail()) {
-				if let image = UIImage(contentsOfFile: event.mediaThumbnailFileName) {
-					let size = image.size
-					self.videoPreviewPercentageOfScreenWidth = ChunkCallVideoOrIcon.computePercentageWidth(videoSize: size, reservedHeight: 200)
-					self.videoAspectRatio = CGFloat(size.width / size.height)
-					videoPreviewWidth = UIScreen.main.bounds.size.width * videoPreviewPercentageOfScreenWidth
-				}
-			}
-			videoView.snp.makeConstraints { (make) in
-				make.center.equalToSuperview()
-				make.width.equalTo(videoPreviewWidth)
-				make.height.equalTo(videoPreviewWidth / videoAspectRatio)
-			}
-			self.videoView = videoView
-		} else {
-			let iconSize = UIScreen.main.bounds.size.width * iconPercentageOfScreenWidth
-			let audio = UIImageView(frame: CGRect(x: 0,y: 0,width: iconSize ,height: iconSize))
-			audio.prepareSwiftSVG(iconName: "icons/audio_media", fillColor: "color_c", bgColor: nil)
-			self.view.addSubview(audio)
-			audio.snp.makeConstraints { (make) in
-				make.center.equalToSuperview()
-				make.width.height.equalTo(iconSize)
-			}
-		}
+        if ( event.hasMediaVideo()){
+            if (event.hasVideo) {
+                let videoView = UIView()
+                videoView.backgroundColor = .black
+                var videoPreviewWidth = UIScreen.main.bounds.size.width * videoPreviewPercentageOfScreenWidth
+                self.view.addSubview(videoView)
+                player.windowId = UnsafeMutableRawPointer(Unmanaged.passRetained(videoView).toOpaque())
+                
+                videoView.layer.cornerRadius = CGFloat(Customisation.it.themeConfig.getFloat(section: "arbitrary-values", key: "video_view_corner_radius", defaultValue: 20.0))
+                videoView.clipsToBounds = true
+                if (event.hasMediaThumbnail()) {
+                    if let image = UIImage(contentsOfFile: event.mediaThumbnailFileName) {
+                        let size = image.size
+                        self.videoPreviewPercentageOfScreenWidth = ChunkCallVideoOrIcon.computePercentageWidth(videoSize: size, reservedHeight: 200)
+                        self.videoAspectRatio = CGFloat(size.width / size.height)
+                        videoPreviewWidth = UIScreen.main.bounds.size.width * videoPreviewPercentageOfScreenWidth
+                    }
+                }
+                videoView.snp.makeConstraints { (make) in
+                    make.center.equalToSuperview()
+                    make.width.equalTo(videoPreviewWidth)
+                    make.height.equalTo(videoPreviewWidth / videoAspectRatio)
+                }
+                self.videoView = videoView
+            } else {
+                let iconSize = UIScreen.main.bounds.size.width * iconPercentageOfScreenWidth
+                let audio = UIImageView(frame: CGRect(x: 0,y: 0,width: iconSize ,height: iconSize))
+                audio.prepareSwiftSVG(iconName: "icons/audio_media", fillColor: "color_c", bgColor: nil)
+                self.view.addSubview(audio)
+                audio.snp.makeConstraints { (make) in
+                    make.center.equalToSuperview()
+                    make.width.height.equalTo(iconSize)
+                }
+            }
+        }else if (event.hasMediaThumbnail()) {
+            var imageWidth = UIScreen.main.bounds.size.width * videoPreviewPercentageOfScreenWidth
+            if let image = UIImage(contentsOfFile: event.mediaThumbnailFileName) {
+                let size = image.size
+                self.videoPreviewPercentageOfScreenWidth = ChunkCallVideoOrIcon.computePercentageWidth(videoSize: size, reservedHeight: 200)
+                self.videoAspectRatio = CGFloat(size.width / size.height)
+                imageWidth = UIScreen.main.bounds.size.width * videoPreviewPercentageOfScreenWidth
+                let imageView = UIImageView(frame: CGRect(x: 0,y: 0,width: imageWidth ,height: imageWidth))
+                imageView.image = image
+                imageView.layer.cornerRadius = CGFloat(Customisation.it.themeConfig.getFloat(section: "arbitrary-values", key: "video_view_corner_radius", defaultValue: 20.0))
+                imageView.clipsToBounds = true
+                self.view.addSubview(imageView)
+                imageView.snp.makeConstraints { (make) in
+                    make.center.equalToSuperview()
+                    make.width.equalTo(imageWidth)
+                    make.height.equalTo(imageWidth / videoAspectRatio)
+                }
+            }
+        }
 	}
 	
 	override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -144,8 +166,10 @@ class PlayerView : ViewWithModel {
 	
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		NavigationManager.it.playerViewDisplaying = true
-		playerViewModel?.playFromStart()
+        if ( event?.hasMediaVideo() == true) {
+            NavigationManager.it.playerViewDisplaying = true
+            playerViewModel?.playFromStart()
+        }
 	}
 	
 	override func isCallView() -> Bool {
@@ -169,8 +193,10 @@ class PlayerView : ViewWithModel {
 	
 	override func viewWillDisappear(_ animated: Bool) {
 		NavigationManager.it.playerViewDisplaying = false
-		playerViewModel?.pausePlay()
-		playerViewModel?.end()
+        if ( event?.hasMediaVideo() == true) {
+            playerViewModel?.pausePlay()
+            playerViewModel?.end()
+        }
 		super.viewWillDisappear(animated)
 	}
 	

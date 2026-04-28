@@ -64,9 +64,15 @@ extension Config {
 	static let defaultPass =  Config.get().getString(section: "app", key: "pass", defaultString: "")
 	
 	// CallKit mode
-	static let useInAppCallKit: Bool = true
+	static let useInAppCallKit: Bool = false
+    // Record mode
+    static let recordMode: Call.RecordMode = Call.RecordMode.NO_VIDEO_RECORDING
+    // Max. recording duration in ms
+    static let recordMaxDuration: Int = 5500
     // Max. entries in history
     static let historyMaxCount: Int = 20
+    // Use remote managed vcards
+    static let enabledRemoteVcards: Bool = false
 
 	// Push related
 	static let pushNotificationsInterval =  Config.get().getInt(section: "net", key: "pn-call-remote-push-interval", defaultValue: 3)

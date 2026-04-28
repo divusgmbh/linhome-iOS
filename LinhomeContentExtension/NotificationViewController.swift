@@ -164,10 +164,10 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
 	func end() {
 		core?.removeDelegate(delegate: coreDelegateStub!)
 		call.map { it in
-			if (it.params?.isRecording == true) {
-				it.stopRecording()
+			//if (it.params?.isRecording == true) {
+                it.extendedClose()
 				HistoryEventStore.it.sync()
-			}
+			//}
 		}
 		try?call?.decline(reason: declined ? .Declined : .IOError)
 		call?.callLog.map { it in

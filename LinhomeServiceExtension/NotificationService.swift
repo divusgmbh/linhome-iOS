@@ -125,10 +125,10 @@ class NotificationService: UNNotificationServiceExtension {
 			if (cstate == Call.State.End) {
 				self.waitForACall = false
 				self.finishedHere = true
-				if (call.params?.isRecording == true) {
-					call.stopRecording()
+				//if (call.params?.isRecording == true) {
+                    call.extendedClose()
 					HistoryEventStore.it.sync()
-				}
+				//}
 				Log.info("CoreDelegateStub - Call ended here ")
 			}
 		})
@@ -230,10 +230,10 @@ class NotificationService: UNNotificationServiceExtension {
 			i+=1
 		}
 		Log.info("Finished waiting - stopping core, stopping recording and release ownership. loop conditions at exit : seconds waited=\(Float(i)*0.02) hasOwnership=\(Call.hasOwnerShip(notifCallId)) ownerShipRequested=\(Call.ownerShipRequessted(notifCallId)) call terminated=\(self.finishedHere) ")
-		if (call.params?.isRecording == true) {
-			call.stopRecording()
+		//if (call.params?.isRecording == true) {
+            call.extendedClose()
 			HistoryEventStore.it.sync()
-		}
+		//}
 		core.removeDelegate(delegate: self.coreDelegateStub!)
 		call.removeDelegate(delegate: callDelegate!)
 		core.calls.forEach { call in

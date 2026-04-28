@@ -22,8 +22,17 @@ import UIKit
 import linphonesw
 
 extension Call {
-	
-	
+    
+    enum RecordMode{
+        case NO_VIDEO_RECORDING
+        case DURATION_TIMER_START_IMMEDIATELY
+        case DURATION_TIMER_START_WITH_FIRST_FRAME
+        case DURATION_TIMER_START_WITH_SNAPSHOT_PROCESSED
+        case DURATION_RECORDER_START_IMMEDIATELY
+        case DURATION_RECORDER_START_WITH_FIRST_FRAME
+        case DURATION_RECORDER_START_WITH_SNAPSHOT_PROCESSED
+    }
+        
 	func extendedAcceptEarlyMedia(core:Core) {
 		do {
 			let earlyMediaCallParams: CallParams = try core.createCallParams(call: self)
@@ -38,9 +47,7 @@ extension Call {
             earlyMediaCallParams.earlyMediaSendingEnabled = true
             earlyMediaCallParams.cameraEnabled = false
 			try acceptEarlyMediaWithParams(params: earlyMediaCallParams)
-            if(!isRecording){
-                startRecording()
-            }
+            extendedStartRecording()
 			sendVfuRequest()
 		} catch {
 			Log.error("[extendedAcceptEarlyMedia] exception \(error) ")
@@ -64,9 +71,7 @@ extension Call {
 				Core.get().useInfoForDtmf = device.actionsMethodType == "method_dtmf_sip_info"
 			}
 			try acceptWithParams(params: inCallParams)
-            if(!isRecording){
-                startRecording()
-            }
+            extendedStartRecording()
 		} catch {
 			Log.error("[extendedAccept] exception \(error) ")
 		}
@@ -144,5 +149,70 @@ extension Call {
 	public func unMuteAudioPLayBack() {
 		speakerVolumeGain = 0.0
 	}
+    
+    public func extendedStartRecording(){
+        let isRecordRunning = callLog!.getHistoryEvent().isRecordRunning
+        if(!isRecordRunning){
+            callLog!.getHistoryEvent().isRecordRunning = true
+            switch(Config.recordMode){
+            case .NO_VIDEO_RECORDING:
+                callLog!.getHistoryEvent().isRecordRunning = false
+                return
+            case .DURATION_RECORDER_START_IMMEDIATELY:
+                do {
+                    var recordParams = try core?.createRecorderParams()
+                    recordParams?.fileFormat = MediaFileFormat.Mkv
+                    recordParams?.videoCodec = "H264"
+                    callLog!.getHistoryEvent().recorder = try core?.createRecorder(params: recordParams!)
+                    if(callLog!.getHistoryEvent().recorder != nil){
+                        try callLog!.getHistoryEvent().recorder?.open(file: params?.recordFile ?? "")
+                        try callLog!.getHistoryEvent().recorder?.start()
+                        startRecording()
+                        callLog!.getHistoryEvent().rdTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { timer in
+                            let duration: Int = self.callLog!.getHistoryEvent().recorder?.duration ?? 0
+                            if (duration >= Config.recordMaxDuration) {
+                                self.extendedStopRecording()
+                                let path = self.params?.recordFile
+                                self.params?.recordFile = ""
+                                self.params?.recordFile = path
+                                timer.invalidate()
+                                Log.info("[Call+Extension] recording stopped due max. duration reached")
+                            }
+                        }
+                    }
+                }catch {
+                    Log.error("[Call+Extension] unable to create recorder: \(error)")
+                }
+                break
+            case .DURATION_TIMER_START_IMMEDIATELY:
+                Log.error("[Call+Extension] record mode not supported: \(RecordMode.DURATION_TIMER_START_IMMEDIATELY)")
+                break
+            case .DURATION_TIMER_START_WITH_FIRST_FRAME:
+                Log.error("[Call+Extension] record mode not supported: \(RecordMode.DURATION_TIMER_START_WITH_FIRST_FRAME)")
+                break
+            case .DURATION_TIMER_START_WITH_SNAPSHOT_PROCESSED:
+                Log.error("[Call+Extension] record mode not supported: \(RecordMode.DURATION_TIMER_START_WITH_SNAPSHOT_PROCESSED)")
+                break
+            case .DURATION_RECORDER_START_WITH_FIRST_FRAME:
+                Log.error("[Call+Extension] record mode not supported: \(RecordMode.DURATION_RECORDER_START_WITH_FIRST_FRAME)")
+                break
+            case .DURATION_RECORDER_START_WITH_SNAPSHOT_PROCESSED:
+                Log.error("[Call+Extension] record mode not supported: \(RecordMode.DURATION_RECORDER_START_WITH_SNAPSHOT_PROCESSED)")
+                break
+            }
+        }
+    }
+    
+    public func extendedStopRecording(){
+        callLog!.getHistoryEvent().isRecordRunning = false
+        callLog!.getHistoryEvent().recorder?.close()
+        callLog!.getHistoryEvent().rdTimer?.invalidate()
+        stopRecording()
+    }
+    
+    public func extendedClose(){
+        extendedStopRecording()
+        HistoryEventStore.it.rotateRecordings(cleanup: false)
+    }
 	
 }

@@ -114,7 +114,7 @@ class CallViewModel : ViewModel {
 		}
 		if (cstate == Call.State.StreamsRunning && call.callLog?.dir == Call.Dir.Outgoing && call.params?.isRecording != true) {
 			do {
-				call.startRecording()
+                call.extendedStartRecording()
 			} catch {
 				Log.error("Failed to start recording :\(error)")
 			}

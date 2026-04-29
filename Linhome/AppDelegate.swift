@@ -392,11 +392,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		DeviceStore.it.enteringBackground = true
 		Core.get().enterBackground()
         if (Core.get().callsNb == 0) {
-			//Core.get().stop()
-            DispatchQueue.main.async {
-                Core.get().enterBackground()
-            }
-            
+			Core.get().stop()
 		}
 	}
 	

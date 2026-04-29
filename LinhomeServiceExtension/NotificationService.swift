@@ -133,7 +133,8 @@ class NotificationService: UNNotificationServiceExtension {
 			}
 		})
 		
-        if (userDefaults.bool(forKey: "appactive")) {
+        if (isMainAppActive()) {
+        //if (userDefaults.bool(forKey: "appactive")) {
 			bestAttemptContent?.sound=UNNotificationSound.init(named: UNNotificationSoundName.init("bell.caf"))
 			Log.info("Application is active. Ignoring push notification.")
 			userDefaults.set(Date(), forKey: "notification_time_"+notifCallId)
@@ -249,6 +250,20 @@ class NotificationService: UNNotificationServiceExtension {
 	override func serviceExtensionTimeWillExpire() {
 		waitForACall = false
 	}
+    
+    func isMainAppActive() -> Bool {
+        // If the App crashes use fallback to inter-app communication to check f the App is still in front
+        guard UserDefaults(suiteName: Config.appGroupName)?.bool(forKey: "appactive") == true else {
+            return false
+        }
+        return true
+        /*let portName = "group.eu.divus.videophonemobile.isActive" as CFString
+        let remotePort = CFMessagePortCreateRemote(nil, portName)
+        let valid = remotePort != nil
+        defer { CFMessagePortInvalidate(remotePort) }
+        return valid
+         */
+    }
 }
 
 

@@ -121,9 +121,8 @@ class HistoryEventStore {
 		}
 	}
     
-    func rotateRecordings(cleanup: Bool){
+    func rotateRecordings(cleanup: Bool, core: Core){
         Log.info("[HistoryEventStore] rotating files now")
-        let core = Core.get()
         if(core.globalState != GlobalState.On){
             Log.warn("[HistoryEventStore] rotating files not possible, core not ready, current state:\(core.globalState)")
             return

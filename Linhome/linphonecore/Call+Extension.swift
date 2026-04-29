@@ -210,9 +210,9 @@ extension Call {
         stopRecording()
     }
     
-    public func extendedClose(){
+    public func extendedClose(core: Core){
         extendedStopRecording()
-        HistoryEventStore.it.rotateRecordings(cleanup: false)
+        HistoryEventStore.it.rotateRecordings(cleanup: false, core: core)
     }
 	
 }

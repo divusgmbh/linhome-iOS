@@ -165,11 +165,20 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
 		core?.removeDelegate(delegate: coreDelegateStub!)
 		call.map { it in
 			//if (it.params?.isRecording == true) {
-                it.extendedClose()
+                it.extendedClose(core: core!)
 				HistoryEventStore.it.sync()
 			//}
 		}
-		try?call?.decline(reason: declined ? .Declined : .IOError)
+        //try?call?.decline(reason: declined ? .Declined : .IOError)
+        
+        // DEBUGSU CHECK BUG RISOLVED IN FLEXISIP 2.4
+        // Only decline calls still in an incoming state. Calls already ended/released produce no
+        // SIP message (try? swallows the error), matching SDK 5.0.69 behaviour. Sending 503 or 408
+        // from a push-woken client causes Flexisip 2.3.x to remove the push contact binding.
+		//if call?.state == .IncomingReceived || call?.state == .IncomingEarlyMedia {
+			try?call?.decline(reason: .Busy)
+		//}
+        
 		call?.callLog.map { it in
 			Call.releaseOwnerShip(it.callId!)
 		}

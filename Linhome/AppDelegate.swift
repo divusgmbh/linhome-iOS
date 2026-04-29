@@ -101,7 +101,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 			onGlobalStateChanged: { (core: Core, state: GlobalState, message: String) -> Void in
 				self.coreState.value = state
                 if(state == GlobalState.On) {
-                    HistoryEventStore.it.rotateRecordings(cleanup: true)
+                    HistoryEventStore.it.rotateRecordings(cleanup: true, core: Core.get())
                 }
 			},
 			onCallStateChanged : { (lc: Core, call: Call, cstate: Call.State, message: String) -> Void in
@@ -122,7 +122,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 				}
                 
                 if (cstate == Call.State.End) {
-                    call.extendedClose()
+                    call.extendedClose(core: Core.get())
                 }
 				
 				if (cstate == Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background

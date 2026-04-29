@@ -53,9 +53,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // Call Kit closed observation
     private var onCallKitClosed: (() -> Void)?
     private let callObserver = CXCallObserver()
-    
-    // CFMessagePort for other processes to know if the App is active
-    var messagePort: CFMessagePort?
 	
 	func displayWaitIndicatorIfFromPush() -> Bool {
 		var fromPush = false
@@ -310,10 +307,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
 		}
 		appOpenedTime = Date()
-        messagePort = CFMessagePortCreateLocal(nil, "group.eu.divus.videophonemobile.isActive" as CFString, { _, _, _, _ in
-            Unmanaged.passRetained(CFDataCreate(nil, [], 0))
-        }, nil, nil)
-        CFMessagePortSetDispatchQueue(messagePort, DispatchQueue.main)
 	}
 	
 	func applicationWillResignActive(_ application: UIApplication) {
@@ -325,7 +318,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		}
 		try?Config.get().sync()
 		enterBackground()
-        messagePort = nil  // port is destroyed, remote end gets nil
 	}
 	
 	// UNUserNotificationCenterDelegate functions

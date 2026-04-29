@@ -138,7 +138,7 @@ class CreatorAssistantViewModel : ViewModel {
 			Core.get().pushNotificationConfig?.voipToken = nil
 			Core.get().pushNotificationConfig?.provider = Config.pushProvider
 			accountCreator.pnProvider = pushConfig.provider
-			accountCreator.pnParam = "\(pushConfig.teamId!).\(Bundle.main.bundleIdentifier!).remote"
+			accountCreator.pnParam = "\(pushConfig.teamId!).\(Config.appBundleId).remote"
 			accountCreator.pnPrid = pushConfig.remoteToken
 			
 			// Request an auth token that will be sent by push

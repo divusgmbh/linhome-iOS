@@ -33,14 +33,15 @@ extension Account {
                 newParams.pushNotificationAllowed = true
                 newParams.remotePushNotificationAllowed = false
                 newParams.pushNotificationConfig?.teamId = Config.teamID
-                newParams.pushNotificationConfig?.bundleIdentifier = Bundle.main.bundleIdentifier
-                newParams.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier!).voip"
+                newParams.pushNotificationConfig?.bundleIdentifier = Config.appBundleId
+                newParams.pushNotificationConfig?.param = "\(Config.teamID).\(Config.appBundleId).voip"
                 newParams.pushNotificationConfig?.voipToken = Core.voipToken
+                newParams.pushNotificationConfig?.remoteToken = nil
                 if let voipToken = Core.voipToken {
                     newParams.contactUriParameters =
                     "pn-provider=\(Config.pushProvider);" +
                     "pn-prid=\(voipToken);" +
-                    "pn-param=\(Config.teamID).\(Bundle.main.bundleIdentifier!).voip;" +
+                    "pn-param=\(Config.teamID).\(Config.appBundleId).voip;" +
                     "pn-silent=1;pn-timeout=0"
                 }
             }else{
@@ -49,9 +50,10 @@ extension Account {
                 newParams.pushNotificationAllowed = true
                 newParams.remotePushNotificationAllowed = true // Enable Remote notifications
                 newParams.pushNotificationConfig?.teamId = Config.teamID
-                newParams.pushNotificationConfig?.bundleIdentifier = Bundle.main.bundleIdentifier
-                newParams.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier!).remote"
-                newParams.pushNotificationConfig?.voipToken = nil // Forces removal of voip notification service in SDK.
+                newParams.pushNotificationConfig?.bundleIdentifier = Config.appBundleId
+                newParams.pushNotificationConfig?.remoteToken = Core.pushToken
+                newParams.pushNotificationConfig?.param = "\(Config.teamID).\(Config.appBundleId).remote"
+                newParams.pushNotificationConfig?.voipToken = nil
             }
 			params = newParams
 		}

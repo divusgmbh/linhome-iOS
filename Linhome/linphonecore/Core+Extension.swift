@@ -88,27 +88,29 @@ extension Core {
                     params.remotePushNotificationAllowed = false
                     params.pushNotificationConfig?.provider = Config.pushProvider
                     params.pushNotificationConfig?.teamId = Config.teamID
-                    params.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier ?? "").voip"
+                    params.pushNotificationConfig?.bundleIdentifier = Config.appBundleId
+                    params.pushNotificationConfig?.voipToken = Core.voipToken
+                    params.pushNotificationConfig?.param = "\(Config.teamID).\(Config.appBundleId).voip"
+                    params.pushNotificationConfig?.remoteToken = nil
                     params.contactUriParameters =
                     "pn-provider=\(Config.pushProvider);" +
                                 "pn-prid=\(Core.voipToken);" +
-                                "pn-param=\(Config.teamID).\(Bundle.main.bundleIdentifier!).voip;" +
+                                "pn-param=\(Config.teamID).\(Config.appBundleId).voip;" +
                                 "pn-silent=1;pn-timeout=0"
                 }else{
                     params.remotePushNotificationAllowed = true
                     params.pushNotificationAllowed = true
                     params.pushNotificationConfig?.provider = Config.pushProvider
                     params.pushNotificationConfig?.teamId = Config.teamID
-                    params.pushNotificationConfig?.param = "\(Config.teamID).\(Bundle.main.bundleIdentifier ?? "").remote"
+                    params.pushNotificationConfig?.bundleIdentifier = Config.appBundleId
+                    params.pushNotificationConfig?.remoteToken = Core.pushToken
+                    params.pushNotificationConfig?.param = "\(Config.teamID).\(Config.appBundleId).remote"
+                    params.pushNotificationConfig?.voipToken = nil
                 }
                 account.params = params
             }
-
-            // DEBUGSU CHECK IF REALLY REQUIRED HERE: If waking from a background push, force a Register immediately
-            if (runsInsideExtension() || !core.isNetworkReachable) {
-                core.networkReachable = true
-                core.refreshRegisters()
-            }
+            core.incTimeout = 60
+            core.inCallTimeout = 15
             
 			return core
 		} catch  {

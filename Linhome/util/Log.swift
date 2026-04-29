@@ -36,7 +36,7 @@ class Log: LoggingServiceDelegate {
 
 	
 	private init() {
-		service.domain = Bundle.main.bundleIdentifier!
+		service.domain = Config.appBundleId
 		Core.setLogCollectionPath(path: Factory.Instance.getDownloadDir(context: UnsafeMutablePointer<Int8>(mutating: (Config.appGroupName as NSString).utf8String)))
 		Core.enableLogCollection(state: LogCollectionState.Enabled)
 		setMask()
@@ -86,7 +86,7 @@ class Log: LoggingServiceDelegate {
 		instance.service.fatal(message: message)
 	}
 	
-	private func output(_ message:String, _ level:Int, _ domain:String = Bundle.main.bundleIdentifier!) {
+	private func output(_ message:String, _ level:Int, _ domain:String = Config.appBundleId) {
 		let log = "[\(domain)][\(levelToStrings[level] ?? "Unkown")] \(message)\n"
 		if #available(iOS 10.0, *) {
 			os_log("%{public}@", type: levelToOSleLogLevel[level] ?? .info,log)

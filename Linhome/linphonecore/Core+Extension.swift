@@ -58,6 +58,9 @@ extension Core {
             let config = Config.get()
             config.setString(section: "sound", key: "local_ring", value: nil)
 			config.setString(section:"storage", key: "call_logs_db_uri",value: FileUtil.sharedContainerUrl().path + "/call_logs.db")
+            if let token = UserDefaults(suiteName: Config.appGroupName)?.string(forKey: "remote_push_token") {
+                Core.pushToken = token
+            }
             let core = try Factory.Instance.createSharedCoreWithConfig(config: config, systemContext: nil, appGroupId: Config.appGroupName, mainCore: !runsInsideExtension() ) // Shared core makes use of the shared space in AppGroup.
 			core.autoIterateEnabled = autoIterate
 			core.disableChat(denyReason: .NotImplemented)
@@ -204,10 +207,11 @@ extension Core {
 		
 	public func configurePushNotifications(_ deviceToken:Data) { // Should be called by the app when a push token is made abvailable. It adds it to the default proxy config.
 		Core.pushToken = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        UserDefaults(suiteName: Config.appGroupName)!.set(Core.pushToken, forKey: "remote_push_token")
 		Log.info("Push token received from device:"+Core.pushToken!)
-		//DEBUGSU CHECK IF WORKING FIX 752d90a
-        didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: Core.pushToken)
-        //didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: "\(Core.pushToken):remote")
+        //didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: Core.pushToken)
+        // FIX 752d90a
+        didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: "\(Core.pushToken):remote")
 		Core.get().accountList.forEach { account in
 			account.configurePushNotificationParameters()
 		}

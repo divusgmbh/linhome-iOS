@@ -238,8 +238,17 @@ class NotificationService: UNNotificationServiceExtension {
 		core.removeDelegate(delegate: self.coreDelegateStub!)
 		call.removeDelegate(delegate: callDelegate!)
 		core.calls.forEach { call in
-			try?call.decline(reason: .IOError)
-			if let callId = call.callLog?.callId {
+            //try?call.decline(reason: .IOError)
+            
+            // DEBUGSU CHECK BUG RISOLVED IN FLEXISIP 2.4
+            // Only decline calls still in an incoming state. Calls already ended/released produce no
+            // SIP message (try? swallows the error), matching SDK 5.0.69 behaviour. Sending 503 or 408
+            // from a push-woken client causes Flexisip 2.3.x to remove the push contact binding.
+			//if call.state == .IncomingReceived || call.state == .IncomingEarlyMedia {
+            try?call.decline(reason: .Busy)
+			//}
+			
+            if let callId = call.callLog?.callId {
 				Call.releaseOwnerShip(callId)
 			}
 		}

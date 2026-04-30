@@ -27,7 +27,7 @@ class TabbarViewModel : ViewModel {
 	private var delegate : CoreDelegateStub?
 	
 	func updateUnreadCount() {
-		unreadCount.value =  Core.get().missedCount()
+		unreadCount.value =  Core.get().unreadCount()
 		UIApplication.shared.applicationIconBadgeNumber = unreadCount.value!
 	}
 	

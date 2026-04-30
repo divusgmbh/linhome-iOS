@@ -60,9 +60,42 @@ class NotificationService: UNNotificationServiceExtension {
 			userDefaults.set(Date(), forKey: "lastcallpushtime")
 		}
 		
-		if let aps = request.content.userInfo["aps"] as? [String: Any], let alert = aps["alert"] as? [String: Any], let locKey = alert["loc-key"] as? String, locKey == "Missing call" {
-			bestAttemptContent?.title = Texts.get("notif_missed_call_title")
-			contentHandler(bestAttemptContent!)
+		if let aps = request.content.userInfo["aps"] as? [String: Any], let alert = aps["alert"] as? [String: Any], let locKey = alert["loc-key"] as?
+            String, locKey == "Missing call" {
+            // Remove previous missed call notification
+            let preId = userDefaults.string(forKey: "notif_missed_msg_id")
+            if let preId = preId, !preId.isEmpty {
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [preId])
+            }
+            // Store missed call notification ID
+            userDefaults.set(request.identifier, forKey: "notif_missed_msg_id")
+            let unread = userDefaults.integer(forKey: "notification_badge_"+notifCallId)
+            bestAttemptContent?.title = Texts.get("notif_missed_call_title")
+            if(unread > 1){
+                bestAttemptContent?.body = Texts.get(
+                    "notif_missed_calls",
+                    oneArg: "\(unread)")
+            }else{
+                let name = userDefaults.string(forKey: "notification_title_"+notifCallId)
+                bestAttemptContent?.body = Texts.get(
+                    "notif_missed_call",
+                    oneArg: name ?? "")
+            }
+            bestAttemptContent?.badge = NSNumber(value: unread)
+            bestAttemptContent?.sound = UNNotificationSound.default
+            
+            // Cleanup
+            /*let semaphore = DispatchSemaphore(value: 0)
+            UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+                let idsToRemove = notifications.map { $0.request.identifier }.filter { $0 != request.identifier }
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: idsToRemove)
+                semaphore.signal()
+            }
+            semaphore.wait()*/
+            
+            //bestAttemptContent?.badge = NSNumber(value: core.missedCount() + 1)
+            //bestAttemptContent?.categoryIdentifier = Config.earlymediaContentExtensionCagetoryIdentifier
+            contentHandler(bestAttemptContent!)
 			return
 		}
 		

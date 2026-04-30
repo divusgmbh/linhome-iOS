@@ -144,12 +144,22 @@ extension Core {
 	func missedCount() -> Int {
 		var count = 0
 		callLogsWithNonEmptyCallId().forEach { it in
-			if (it.isNew()) {
+            if (it.isNew() && it.status == Call.Status.Missed) {
 				count += 1
 			}
 		}
 		return count
 	}
+    
+    func unreadCount() -> Int {
+        var count = 0
+        callLogsWithNonEmptyCallId().forEach { it in
+            if (it.isNew()) {
+                count += 1
+            }
+        }
+        return count
+    }
 	
 	
 	func workAroundFindCallLogFromCallId(callId: String) -> CallLog? { // Work around as Core.get.

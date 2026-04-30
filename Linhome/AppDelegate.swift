@@ -152,6 +152,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 				}
 				
 				if ([Call.State.IncomingReceived, Call.State.IncomingEarlyMedia].contains(call.state)) {
+                    // Set notification title for post-call notification as missed call
+                    if let callId = call.callLog?.callId {
+                        let incomingName = DeviceStore.getDeviceNameForExtension(address: call.remoteAddress!)
+                        UserDefaults(suiteName: Config.appGroupName)?.set(incomingName, forKey: "notification_title_"+callId)
+                        // Increase counter for missed call
+                        let badgeCount = NSNumber(value: Core.get().missedCount() + 1)
+                        UserDefaults(suiteName: Config.appGroupName)?.set(badgeCount, forKey: "notification_badge_"+callId)
+                    }
                     if(Config.useInAppCallKit){
                         if let callId = call.callLog?.callId, self.callKitAcceptedCallIds.contains(callId) {
                             Log.info("Accepting call answered via CallKit before INVITE arrived: \(callId)")

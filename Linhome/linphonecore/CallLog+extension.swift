@@ -53,7 +53,7 @@ extension CallLog {
 		let event = getHistoryEvent()
 		return dir == Call.Dir.Incoming && [
 			Call.Status.Missed,
-			Call.Status.Declined,
+			//Call.Status.Declined,
 			Call.Status.DeclinedElsewhere
 			].contains(status) && !event.viewedByUser
 	}

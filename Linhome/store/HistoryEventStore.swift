@@ -193,6 +193,9 @@ class HistoryEventStore {
         
         if !callIdsToRemove.isEmpty {
             sync()
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NSNotification.Name("historyDidSync"), object: nil)
+            }
         }
     }
 }

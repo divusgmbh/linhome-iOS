@@ -83,7 +83,11 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 		NavigationManager.it.mainView!.tabbarViewModel.unreadCount.observe { _ in
 			self.eventsTable.reloadData()
 		}
-		
+        
+        // Sync model from ile rotation
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("historyDidSync"), object: nil, queue: .main) { [weak self] _ in
+            self?.model.refresh()
+        }
 	}
 	
 	override func onToolbarRightButtonClicked() {

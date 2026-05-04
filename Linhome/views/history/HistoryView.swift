@@ -84,7 +84,7 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 			self.eventsTable.reloadData()
 		}
         
-        // Sync model from ile rotation
+        // Sync model from file rotation
         NotificationCenter.default.addObserver(forName: NSNotification.Name("historyDidSync"), object: nil, queue: .main) { [weak self] _ in
             self?.model.refresh()
         }

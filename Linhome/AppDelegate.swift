@@ -149,6 +149,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 				if (cstate == Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background
 					DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
 						//self.applicationWillResignActive(UIApplication.shared)
+                        self.enterBackground()
 					}
 				}
 				

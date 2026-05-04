@@ -55,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private let callObserver = CXCallObserver()
     private let callController = CXCallController()
     private var appCallDelegate: CallDelegateStub?
+    private var missedCallPreId: String?
     
     // CFMessagePort for other processes to know if the App is active
     // var messagePort: CFMessagePort?
@@ -83,6 +84,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 	}
 	
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        // Must be set before didFinishLaunching returns so notification responses
+        // are delivered even when the app was launched from a killed state by a VoIP push.
+        UNUserNotificationCenter.current().delegate = self
 
         if Config.useInAppCallKit {
             setupCallKit()
@@ -459,6 +464,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 	func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
 		Log.info("User pressed action in notification. (app) : \(response)")
 		
+        if response.notification.request.content.userInfo["actionTag"] as? String == "missed_calls" {
+            historyNotifTapped = true
+            if ( UIApplication.shared.applicationState == .active && coreState.value == .On) {
+                coreState.notifyValue()
+            }
+            NavigationManager.it.mainView?.historyTab.performTap()
+            completionHandler()
+            return
+        }
+        
 		if (response.notification.request.content.title == Texts.get("notif_missed_call_title")) {
 			historyNotifTapped = true
 			if ( UIApplication.shared.applicationState == .active && coreState.value == .On) {
@@ -514,6 +529,46 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         callController.request(CXTransaction(action: CXAnswerCallAction(call: uuid))) { error in
             if let error = error { Log.error("[CallKit] in-app CXAnswerCallAction failed: \(error)") }
         }
+    }
+    
+    func notifyMissedCall(callId: String) {
+        let ud = UserDefaults(suiteName: Config.appGroupName)!
+        if let preId = missedCallPreId, !preId.isEmpty {
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [preId])
+        }
+        let unread = ud.integer(forKey: "notification_badge_" + callId)
+        if ( unread < 1 ) {
+            return
+        }
+            
+        let title = Texts.get("notif_missed_call_title")
+        let body: String
+        if unread > 1 {
+            body = Texts.get("notif_missed_calls", oneArg: "\(unread)")
+        } else {
+            let name = ud.string(forKey: "notification_title_" + callId)
+            body = Texts.get("notif_missed_call", oneArg: name ?? "")
+        }
+        missedCallPreId = showLocalNotification(
+            title: title,
+            body: body,
+            badge: NSNumber(value: unread),
+            actionTag: "missed_calls"
+        )
+    }
+
+    func showLocalNotification(title: String, body: String, sound: UNNotificationSound? = .default, badge: NSNumber? = nil, actionTag: String? = nil, identifier: String = UUID().uuidString) -> String {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.userInfo = ["actionTag": actionTag]
+        if let sound = sound { content.sound = sound }
+        if let badge = badge { content.badge = badge }
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error { Log.error("[Notification] Failed to show banner: \(error)") }
+        }
+        return identifier
     }
 }
 

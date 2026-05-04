@@ -117,8 +117,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 				
 				if (cstate == Call.State.Released) {
 					SVProgressHUD.dismiss()
-					let openFiles = FileUtil.openFilePaths()
-					Log.debug("Open file descriptors: limit = \(FileUtil.getNofFileLimit()) count=\(openFiles.count) FDs : \n \(openFiles)")
+					//let openFiles = FileUtil.openFilePaths()
+					//Log.debug("Open file descriptors: limit = \(FileUtil.getNofFileLimit()) count=\(openFiles.count) FDs : \n \(openFiles)")
                     if(Config.useInAppCallKit) {
                         self.closeCallKit(call: call)
                     }

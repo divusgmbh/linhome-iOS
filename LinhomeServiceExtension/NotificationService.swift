@@ -63,10 +63,10 @@ class NotificationService: UNNotificationServiceExtension {
 		if let aps = request.content.userInfo["aps"] as? [String: Any], let alert = aps["alert"] as? [String: Any], let locKey = alert["loc-key"] as?
             String, locKey == "Missing call" {
             // Remove previous missed call notification
-            let preId = userDefaults.string(forKey: "notif_missed_msg_id")
+            /*let preId = userDefaults.string(forKey: "notif_missed_msg_id")
             if let preId = preId, !preId.isEmpty {
                 UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [preId])
-            }
+            }*/
             // Store missed call notification ID
             userDefaults.set(request.identifier, forKey: "notif_missed_msg_id")
             let unread = userDefaults.integer(forKey: "notification_badge_"+notifCallId)
@@ -85,13 +85,13 @@ class NotificationService: UNNotificationServiceExtension {
             bestAttemptContent?.sound = UNNotificationSound.default
             
             // Cleanup
-            /*let semaphore = DispatchSemaphore(value: 0)
+            let semaphore = DispatchSemaphore(value: 0)
             UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
                 let idsToRemove = notifications.map { $0.request.identifier }.filter { $0 != request.identifier }
                 UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: idsToRemove)
                 semaphore.signal()
             }
-            semaphore.wait()*/
+            semaphore.wait()
             
             //bestAttemptContent?.badge = NSNumber(value: core.missedCount() + 1)
             //bestAttemptContent?.categoryIdentifier = Config.earlymediaContentExtensionCagetoryIdentifier
@@ -192,7 +192,21 @@ class NotificationService: UNNotificationServiceExtension {
 		// Wait for a call to showup
 		
 		var i = 0
+        var appActiveDuringFirstWait = false
+        var appActiveDetectedAt = 0
 		while (waitForACall && i < extensionCutoffTimeSec*50 ) { // wait 25 second or call ready to handle - Timers do not work in UNNotificationServiceExtension (normal way of iterating the linphone core, but they work in UNNotificationContentExtension. So here iteration is done as loop). Wait 25 econds max not to be killed.
+            // Checko i main app active
+            if isMainAppActive() {
+                if !appActiveDuringFirstWait {
+                  appActiveDuringFirstWait = true
+                  appActiveDetectedAt = i
+                  Log.info("[NotificationService] App became active during first wait loop at iteration \(i)")
+                } else if (i - appActiveDetectedAt) >= 15 {
+                  // 300ms passed since app became active, no call arrived — INVITE went to main core
+                  Log.info("[NotificationService] App active 300ms with no call, main core is handling it")
+                  break
+                }
+            }
 			core.iterate()
 			usleep(20000)
 			if (i%50 == 0) {
@@ -207,12 +221,21 @@ class NotificationService: UNNotificationServiceExtension {
 			return
 		}
 		guard let call = self.candidateCall else {
-			Log.info("Candidate call is null stopping")
-			bestAttemptContent.title = Texts.get("notif_missed_call_title")
-			Call.releaseOwnerShip(notifCallId)
-			userDefaults.set(Date(), forKey: "notification_time_"+notifCallId)
-			contentHandler(bestAttemptContent)
-			core.stop()
+            // Checko i main app active
+			if appActiveDuringFirstWait {
+                Log.info("[NotificationService] App opened before call arrived — main core handles the call")
+                core.removeDelegate(delegate: coreDelegateStub!)
+                Call.releaseOwnerShip(notifCallId)
+                core.stop()
+                contentHandler(bestAttemptContent)
+            } else {
+                Log.info("Candidate call is null stopping")
+                bestAttemptContent.title = Texts.get("notif_missed_call_title")
+                Call.releaseOwnerShip(notifCallId)
+                userDefaults.set(Date(), forKey: "notification_time_"+notifCallId)
+                contentHandler(bestAttemptContent)
+                core.stop()
+            }
 			return
 		}
 		
@@ -258,6 +281,15 @@ class NotificationService: UNNotificationServiceExtension {
 				!Call.ownerShipRequessted(notifCallId) &&
 			   !self.finishedHere
 		) {
+            // Detect app waking before SDK sends 603
+            if isMainAppActive() {
+                Log.info("[NotificationService] App active — releasing early dialog with 486 before SDK sends 603")
+                try? call.decline(reason: .Busy)  // 486 Busy Here (per-branch, not global)
+                core.iterate()  // flush the SIP message
+                usleep(50000)
+                core.iterate()
+                break
+            }
 			core.iterate()
 			Log.info("Waiting for the call to be picked by app - \(Float(i)*0.02)")
 			usleep(20000)
@@ -270,17 +302,24 @@ class NotificationService: UNNotificationServiceExtension {
 		//}
 		core.removeDelegate(delegate: self.coreDelegateStub!)
 		call.removeDelegate(delegate: callDelegate!)
+        
+        if Call.ownerShipRequessted(notifCallId) {
+            return  // main app took the call — don't stop core, SDK handles transition
+        }
+        
 		core.calls.forEach { call in
-            //try?call.decline(reason: .IOError)
-            
-            // DEBUGSU CHECK BUG RISOLVED IN FLEXISIP 2.4
-            // Only decline calls still in an incoming state. Calls already ended/released produce no
-            // SIP message (try? swallows the error), matching SDK 5.0.69 behaviour. Sending 503 or 408
-            // from a push-woken client causes Flexisip 2.3.x to remove the push contact binding.
-			//if call.state == .IncomingReceived || call.state == .IncomingEarlyMedia {
-            try?call.decline(reason: .Busy)
-			//}
-			
+            // Skip if the call was processed declined/accepted in main app
+            if let callId = call.callLog?.callId {
+                //try?call.decline(reason: .IOError)
+                
+                // DEBUGSU CHECK BUG RISOLVED IN FLEXISIP 2.4
+                // Only decline calls still in an incoming state. Calls already ended/released produce no
+                // SIP message (try? swallows the error), matching SDK 5.0.69 behaviour. Sending 503 or 408
+                // from a push-woken client causes Flexisip 2.3.x to remove the push contact binding.
+                //if call.state == .IncomingReceived || call.state == .IncomingEarlyMedia {
+                try?call.decline(reason: .Busy)
+                //}
+            }
             if let callId = call.callLog?.callId {
 				Call.releaseOwnerShip(callId)
 			}

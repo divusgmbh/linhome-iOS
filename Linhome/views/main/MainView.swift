@@ -159,6 +159,9 @@ class MainView: ViewWithModel, UIDynamicAnimatorDelegate {
 		observer = MutableLiveDataOnChangeClosure<GlobalState> { state in
 			if (state == .On) {
 				if ((UIApplication.shared.delegate as! AppDelegate).historyNotifTapped) {
+                    if NavigationManager.it.viewStack.isEmpty {
+                        DeviceStore.it.readDevicesFromFriends()
+                    }
 					self.historyTab.performTap()
 					(UIApplication.shared.delegate as! AppDelegate).historyNotifTapped = false
 				}
@@ -171,6 +174,9 @@ class MainView: ViewWithModel, UIDynamicAnimatorDelegate {
 		super.viewWillAppear(animated)
 		(UIApplication.shared.delegate as! AppDelegate).coreState.addObserver(observer: observer!)
 		if ((UIApplication.shared.delegate as! AppDelegate).historyNotifTapped) {
+            if NavigationManager.it.viewStack.isEmpty {
+                DeviceStore.it.readDevicesFromFriends()
+            }
 			self.historyTab.performTap()
 			(UIApplication.shared.delegate as! AppDelegate).historyNotifTapped = false
 		} else {

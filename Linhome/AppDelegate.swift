@@ -373,6 +373,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     argument: Pair(connectedCall, [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote])
                 )
             }
+            // For the case the App is awoken in background over VoIP push and opened with empty stack
+            // ViewWillAppear of the main view won't trigger in that moment
+            if NavigationManager.it.viewStack.isEmpty {
+                NavigationManager.it.mainView?.viewWillAppear(false)
+            }
 		}
 		appOpenedTime = Date()
         /*messagePort = CFMessagePortCreateLocal(nil, "group.eu.divus.videophonemobile.isActive" as CFString, { _, _, _, _ in
@@ -473,7 +478,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             if ( UIApplication.shared.applicationState == .active && coreState.value == .On) {
                 coreState.notifyValue()
             }
-            NavigationManager.it.mainView?.historyTab.performTap()
             completionHandler()
             return
         }

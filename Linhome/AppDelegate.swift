@@ -139,7 +139,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     call.extendedClose(core: Core.get())
                     if(Config.useInAppCallKit) {
                         if let callId = call.callLog?.callId {
-                            self.notifyMissedCall(callId: callId)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+                                self.notifyMissedCall(callId: callId)
+                            }
                         }
                     }
                 }
@@ -541,9 +543,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func notifyMissedCall(callId: String) {
         let ud = UserDefaults(suiteName: Config.appGroupName)!
-        if let preId = missedCallPreId, !preId.isEmpty {
+        /*if let preId = missedCallPreId, !preId.isEmpty {
             UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [preId])
-        }
+        }*/
         let unread = ud.integer(forKey: "notification_badge_" + callId)
         if ( unread < 1 ) {
             return
@@ -563,6 +565,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             badge: NSNumber(value: unread),
             actionTag: "missed_calls"
         )
+        // Cleanup all notifications
+        let semaphore = DispatchSemaphore(value: 0)
+        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+            let idsToRemove = notifications.map { $0.request.identifier }.filter { $0 != self.missedCallPreId }
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: idsToRemove)
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
 
     func showLocalNotification(title: String, body: String, sound: UNNotificationSound? = .default, badge: NSNumber? = nil, actionTag: String? = nil, identifier: String = UUID().uuidString) -> String {

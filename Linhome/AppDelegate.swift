@@ -53,6 +53,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // Call Kit closed observation
     private var onCallKitClosed: (() -> Void)?
     private let callObserver = CXCallObserver()
+    private let callController = CXCallController()
+    private var appCallDelegate: CallDelegateStub?
     
     // CFMessagePort for other processes to know if the App is active
     // var messagePort: CFMessagePort?
@@ -126,6 +128,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 
                 if (cstate == Call.State.End) {
                     call.extendedClose(core: Core.get())
+                    if(Config.useInAppCallKit) {
+                        if let callId = call.callLog?.callId {
+                            self.notifyMissedCall(callId: callId)
+                        }
+                    }
                 }
 				
 				if (cstate == Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background
@@ -186,8 +193,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 						return
 					}
 				}
-				
+                if (cstate == Call.State.IncomingEarlyMedia && !Config.useInAppCallKit) {
+                    Core.get().activateAudioSession(activated: true)
+                }
 				if (cstate == Call.State.IncomingReceived && !self.hasBeenConnected.contains(call.callLog?.callId ?? nil)) {
+                    if(Config.useInAppCallKit){
+                        self.appCallDelegate = CallDelegateStub(
+                            onNextVideoFrameDecoded: { (call: Call) -> Void in
+                                if let event = call.callLog?.getHistoryEvent() {
+                                    if (!event.hasVideo) {
+                                        event.hasVideo = true
+                                        event.persist()
+                                    }
+                                    if (!event.hasMediaThumbnail()) {
+                                        try? call.takeVideoSnapshot(filePath: event.mediaThumbnailFileName)
+                                    }
+                                }
+                            }
+                        )
+                        call.addDelegate(delegate: self.appCallDelegate!)
+                        call.requestNotifyNextVideoFrameDecoded()
+                        call.extendedAcceptEarlyMedia(core: Core.get())
+                    }
 					DispatchQueue.main.async {
 						NavigationManager.it.navigateTo(childClass: CallIncomingView.self, asRoot:false, argument:Pair(call, [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia]))
 					}
@@ -455,6 +482,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             onCallKitClosed = completion
         }
     }
+
+    func answerCallViaCallKit(callId: String) {
+        guard let uuid = pendingCallKitIds.first(where: { $0.value == callId })?.key else {
+            Core.get().calls.first(where: { $0.callLog?.callId == callId })?.extendedAccept(core: Core.get())
+            return
+        }
+        callController.request(CXTransaction(action: CXAnswerCallAction(call: uuid))) { error in
+            if let error = error { Log.error("[CallKit] in-app CXAnswerCallAction failed: \(error)") }
+        }
+    }
 }
 
 extension AppDelegate: CXCallObserverDelegate {
@@ -534,11 +571,8 @@ extension AppDelegate: CXProviderDelegate {
     }
 
     func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
-        if let callId = pendingCallKitIds[action.callUUID],
-           let call = Core.get().calls.first(where: { $0.callLog?.callId == callId }) {
-            call.extendedAccept(core: Core.get())
-        } else if let callId = pendingCallKitIds[action.callUUID] {
-            // INVITE not yet arrived — accept it when onCallStateChanged fires
+        // Defer accept to didActivate so audio session is ready before streams start
+        if let callId = pendingCallKitIds[action.callUUID] {
             callKitAcceptedCallIds.insert(callId)
         }
         action.fulfill()
@@ -558,7 +592,17 @@ extension AppDelegate: CXProviderDelegate {
     }
 
     func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
+        Core.get().enterForeground()
         Core.get().activateAudioSession(activated: true)
+        // Accept calls deferred from CXAnswerCallAction — audio session is now ready
+        let pending = callKitAcceptedCallIds
+        pending.forEach { callId in
+            if let call = Core.get().calls.first(where: { $0.callLog?.callId == callId }) {
+                callKitAcceptedCallIds.remove(callId)
+                call.extendedAccept(core: Core.get())
+            }
+            // If INVITE not yet arrived, onCallStateChanged will accept it when IncomingReceived fires
+        }
     }
 
     func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {

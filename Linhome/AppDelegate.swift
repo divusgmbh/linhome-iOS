@@ -330,9 +330,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         registerForPushNotifications()
         
         DispatchQueue.main.async {
-            UserDefaults(suiteName: Config.appGroupName)?.setValue(0, forKey: "ACTIVE_SHARED_CORE")
-			try?Core.get().start()
-			Core.get().enterForeground()
+            if(Config.useInAppCallKit){
+                if Core.get().globalState != .On {
+                    UserDefaults(suiteName: Config.appGroupName)?.setValue(0, forKey: "ACTIVE_SHARED_CORE")
+                    try?Core.get().start()
+                }
+                Core.get().enterForeground()
+            }else{
+                UserDefaults(suiteName: Config.appGroupName)?.setValue(0, forKey: "ACTIVE_SHARED_CORE")
+                try?Core.get().start()
+                Core.get().enterForeground()
+            }
 			NavigationManager.it.mainView?.tabbarViewModel.updateUnreadCount()
             // Re-check for incoming call that arrived while in background
             if let incomingCall = Core.get().calls.first(where: {
@@ -343,6 +351,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                             asRoot: false,
                             argument: Pair(incomingCall, [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia])
                     )
+            }
+            // Re-check for call accepted via CallKit while app was still in background
+            if Config.useInAppCallKit,
+               let connectedCall = Core.get().calls.first(where: {
+                [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote].contains($0.state)
+               }),
+               !NavigationManager.it.viewStack.contains(where: { $0 is CallInProgressView }) {
+                NavigationManager.it.navigateTo(
+                    childClass: CallInProgressView.self,
+                    asRoot: false,
+                    argument: Pair(connectedCall, [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote])
+                )
             }
 		}
 		appOpenedTime = Date()
@@ -360,6 +380,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		if (preventEnterinBackground) {
 			return
 		}
+        if (Config.useInAppCallKit && Core.get().callsNb > 0) {
+            return
+        }
 		if let userDefaults = UserDefaults(suiteName: Config.appGroupName) {
 			userDefaults.set(false, forKey: "appactive")
             userDefaults.synchronize()

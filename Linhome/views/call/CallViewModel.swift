@@ -228,8 +228,10 @@ class CallViewModel : ViewModel {
 	}
 	
 	func extendedAccept() {
-		if (GSMActivityHelper.it.ongoingGSMCall.value == true) {
-			DialogUtil.toast(textKey: "unable_to_accept_call_gsm_call_in_progress")
+        if Config.useInAppCallKit, let callId = call.callLog?.callId {
+            (UIApplication.shared.delegate as? AppDelegate)?.answerCallViaCallKit(callId: callId)
+        } else if (GSMActivityHelper.it.ongoingGSMCall.value == true) {
+            DialogUtil.toast(textKey: "unable_to_accept_call_gsm_call_in_progress")
 		} else {
 			call.extendedAccept(core : Core.get())
 		}

@@ -65,7 +65,7 @@ extension Config {
 	static let defaultPass =  Config.get().getString(section: "app", key: "pass", defaultString: "")
 	
 	// CallKit mode
-	static let useInAppCallKit: Bool = false
+	static let useInAppCallKit: Bool = true
     // Record mode
     static let recordMode: Call.RecordMode = Call.RecordMode.NO_VIDEO_RECORDING
     // Max. recording duration in ms

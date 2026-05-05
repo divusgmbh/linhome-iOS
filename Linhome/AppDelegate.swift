@@ -321,6 +321,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         config.supportsVideo = true
         config.maximumCallsPerCallGroup = 1
         config.supportedHandleTypes = [.generic]
+        config.ringtoneSound = "bell.caf"
+        config.includesCallsInRecents = true
         callKitProvider = CXProvider(configuration: config)
         callKitProvider?.setDelegate(self, queue: .main)
     }

@@ -164,7 +164,8 @@ extension Core {
 	
 	func workAroundFindCallLogFromCallId(callId: String) -> CallLog? { // Work around as Core.get.
 																																		 // findCallLogFromCallId(callId: callId) // KO https://bugs.linphone.org/view.php?id=7765
-		return callLogs.filter {$0.callId == callId}[0] // OK
+        let logs = callLogs.filter {$0.callId == callId}
+        if (logs.isEmpty) {  return nil } else { return logs[0] }
 	}
 	
 	

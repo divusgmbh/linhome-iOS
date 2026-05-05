@@ -116,6 +116,12 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 											   selector: #selector(applicationDidBecomeActive),
 											   name: UIApplication.didBecomeActiveNotification,
 											   object: nil)
+        if(Config.markUnreadOnAppEnterBkg) {
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(applicationWillResignActive),
+                                                   name: UIApplication.willResignActiveNotification,
+                                                   object: nil)
+        }
 		eventsTable.reloadData()
 	}
 	
@@ -140,6 +146,11 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 		NotificationCenter.default.removeObserver(self,
 												  name: UIApplication.didBecomeActiveNotification,
 												  object: nil)
+        if(Config.markUnreadOnAppEnterBkg) {
+            NotificationCenter.default.removeObserver(self,
+                                                      name: UIApplication.willResignActiveNotification,
+                                                      object: nil)
+        }
 		super.viewWillDisappear(animated)
 	}
 	
@@ -216,6 +227,13 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 			self.model.refresh()
 		}
 	}
+    
+    @objc func applicationWillResignActive() {
+        DispatchQueue.main.async {
+            self.model.markEventsAsRead()
+            NavigationManager.it.mainView!.tabbarViewModel.updateUnreadCount()
+        }
+    }
 	
 	
 }

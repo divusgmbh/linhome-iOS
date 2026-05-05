@@ -74,6 +74,8 @@ extension Config {
     static let historyMaxCount: Int = 20
     // Use remote managed vcards
     static let enabledRemoteVcards: Bool = false
+    // Mark history calls as unread and reset badge when moving App into background with history call opened
+    static let markUnreadOnAppEnterBkg: Bool = true
 
 	// Push related
 	static let pushNotificationsInterval =  Config.get().getInt(section: "net", key: "pn-call-remote-push-interval", defaultValue: 3)

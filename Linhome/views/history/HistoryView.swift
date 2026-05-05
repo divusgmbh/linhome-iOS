@@ -112,17 +112,17 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 		NavigationManager.it.mainView!.right.prepare(iconName: "icons/delete",effectKey: "primary_color",tintColor: "color_c", textStyleKey: "toolbar_action", text: Texts.get("delete"))
 		NavigationManager.it.mainView!.left.prepare(iconName: "icons/cancel",effectKey: "primary_color",tintColor: "color_c", textStyleKey: "toolbar_action", text: Texts.get("cancel"))
 		NavigationManager.it.mainView?.toolbarViewModel.rightButtonVisible.value = model.history.value!.count > 0
-		NotificationCenter.default.addObserver(self,
+		/*NotificationCenter.default.addObserver(self,
 											   selector: #selector(applicationDidBecomeActive),
 											   name: UIApplication.didBecomeActiveNotification,
-											   object: nil)
+											   object: nil)*/
         if(Config.markUnreadOnAppEnterBkg) {
             NotificationCenter.default.addObserver(self,
                                                    selector: #selector(applicationWillResignActive),
                                                    name: UIApplication.willResignActiveNotification,
                                                    object: nil)
         }
-		eventsTable.reloadData()
+        eventsTable.reloadData()
 	}
 	
 	func enterEdition() {
@@ -143,9 +143,9 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 		model.markEventsAsRead()
 		NavigationManager.it.mainView!.tabbarViewModel.updateUnreadCount()
 		NavigationManager.it.mainView?.toolbarViewModel.rightButtonVisible.value = false
-		NotificationCenter.default.removeObserver(self,
+		/*NotificationCenter.default.removeObserver(self,
 												  name: UIApplication.didBecomeActiveNotification,
-												  object: nil)
+												  object: nil)*/
         if(Config.markUnreadOnAppEnterBkg) {
             NotificationCenter.default.removeObserver(self,
                                                       name: UIApplication.willResignActiveNotification,
@@ -222,11 +222,11 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 		}
 	}
 	
-	@objc func applicationDidBecomeActive() {
+	/*@objc func applicationDidBecomeActive() {
 		DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
 			self.model.refresh()
 		}
-	}
+	}*/
     
     @objc func applicationWillResignActive() {
         DispatchQueue.main.async {

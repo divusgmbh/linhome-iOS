@@ -56,6 +56,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private let callController = CXCallController()
     private var appCallDelegate: CallDelegateStub?
     private var missedCallPreId: String?
+    // Background task
+    private var backgroundTaskID = UIBackgroundTaskIdentifier.invalid
     
     // CFMessagePort for other processes to know if the App is active
     // var messagePort: CFMessagePort?
@@ -137,10 +139,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 
                 if (cstate == Call.State.End) {
                     call.extendedClose(core: Core.get())
-                    if(Config.useInAppCallKit) {
-                        if let callId = call.callLog?.callId {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-                                self.notifyMissedCall(callId: callId)
+                    if (UIApplication.shared.applicationState == .background) { // A call is terminated in background
+                        // Process end of call in background task
+                        Task.detached(priority: .background) {
+                            await self.processEndOfCallinBkg(call: call)
+                        }
+                    }else{
+                        if(Config.useInAppCallKit) {
+                            if let callId = call.callLog?.callId {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+                                    self.notifyMissedCall(callId: callId)
+                                }
                             }
                         }
                     }
@@ -258,6 +267,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 		return true
 	}
 
+    private func processEndOfCallinBkg(call: Call) async {
+        do{
+            self.backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "Post process call") {
+                Log.warn("Terminating processing end of call in background due no time left")
+                // End the task if time expires.
+                UIApplication.shared.endBackgroundTask(self.backgroundTaskID)
+                self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+            }
+            if #available(iOS 16.0, *) {
+                try await Task.sleep(for: .milliseconds(500))
+            } else {
+                try await Task.sleep(nanoseconds: 500_000_000)
+            }
+            if(Config.useInAppCallKit) {
+                if let callId = call.callLog?.callId {
+                    self.notifyMissedCall(callId: callId)
+                }
+            }
+            if #available(iOS 16.0, *) {
+                try await Task.sleep(for: .milliseconds(500))
+            } else {
+                try await Task.sleep(nanoseconds: 500_000_000)
+            }
+            if (UIApplication.shared.applicationState == .background) {
+                self.enterBackground()
+            }
+            // End the task assertion.
+            UIApplication.shared.endBackgroundTask(self.backgroundTaskID)
+            self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+        }catch{
+            Log.info("Error in processing end of call in background: \(error.localizedDescription)")
+        }
+    }
     private func setupCallKit() {
         let config = CXProviderConfiguration()
         config.supportsVideo = true

@@ -140,8 +140,15 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 	
 	
 	override func viewWillDisappear(_ animated: Bool) {
-        model.markEventsAsRead()
-        NavigationManager.it.mainView!.tabbarViewModel.updateUnreadCount()
+        // Do not mark unread all during incoming call view is shown to avoid
+        // unwanted unread marking if the app is in foregrund and the history tab is visible
+        let incomingCallActive = Core.get().calls.contains {
+            [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia].contains($0.state)
+        }
+        if !incomingCallActive {
+            model.markEventsAsRead()
+            NavigationManager.it.mainView!.tabbarViewModel.updateUnreadCount()
+        }
         NavigationManager.it.mainView?.toolbarViewModel.rightButtonVisible.value = false
         /*NotificationCenter.default.removeObserver(self,
                                                   name: UIApplication.didBecomeActiveNotification,

@@ -675,7 +675,7 @@ extension AppDelegate: PKPushRegistryDelegate {
 
         let aps = userInfo["aps"] as? [String: Any]
         let callId = aps?["call-id"] as? String ?? UUID().uuidString
-        let displayName = userInfo["display-name"] as? String ?? "Incoming Call"
+        var displayName = userInfo["display-name"] as? String ?? "Incoming Call"
 
         // Deduplicate: SDK's internal PKPushRegistry (pushNotificationEnabled=true) may also
         // receive this same push. Only report to CallKit once per call-id.
@@ -697,7 +697,7 @@ extension AppDelegate: PKPushRegistryDelegate {
         let uuid = UUID()
         pendingCallKitIds[uuid] = callId
 
-        let update = CXCallUpdate()
+        var update = CXCallUpdate()
         update.remoteHandle = CXHandle(type: .generic, value: displayName)
         update.localizedCallerName = displayName
         update.hasVideo = true
@@ -716,8 +716,17 @@ extension AppDelegate: PKPushRegistryDelegate {
         if Core.get().globalState != .On {
             UserDefaults(suiteName: Config.appGroupName)?.setValue(0, forKey: "ACTIVE_SHARED_CORE")
             try? Core.get().start()
+            DeviceStore.it.readDevicesFromFriends()
         }
         Core.get().accountList.forEach { $0.refreshRegister() }
+        
+        // Try to show device name if defined
+        let fromUri = userInfo["from-uri"] as? String ?? ""
+        if let device = DeviceStore.it.findDeviceByAddress(address:fromUri) {
+            displayName = device.name
+            update.localizedCallerName = displayName
+            provider.reportCall(with: uuid, updated: update)
+        }
     }
 }
 

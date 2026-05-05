@@ -615,7 +615,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         /*if let preId = missedCallPreId, !preId.isEmpty {
             UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [preId])
         }*/
-        let unread = ud.integer(forKey: "notification_badge_" + callId)
+        //let unread = ud.integer(forKey: "notification_badge_" + callId)
+        let unread = Core.get().missedCount()
         if ( unread < 1 ) {
             return
         }

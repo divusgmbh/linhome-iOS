@@ -255,6 +255,9 @@ class NotificationService: UNNotificationServiceExtension {
 					}
 					if (!event.hasMediaThumbnail()) {
 						try? call.takeVideoSnapshot(filePath: event.mediaThumbnailFileName)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+                            self.storeSnapshotForDevice(call: call)
+                        }
 					}
 				}
 		})
@@ -344,6 +347,20 @@ class NotificationService: UNNotificationServiceExtension {
         defer { CFMessagePortInvalidate(remotePort) }
         return valid
          */
+    }
+    
+    private func storeSnapshotForDevice(call: Call){
+        DeviceStore.it.readDevicesFromFriends()
+        if let device = DeviceStore.it.findDeviceByAddress(address: call.remoteAddress!) {
+            if (CorePreferences.them.showLatestSnapshot || !device.hasThumbNail()) {
+                if let event = call.callLog?.getHistoryEvent() {
+                    if (event.hasMediaThumbnail()) {
+                        FileUtil.copy(event.mediaThumbnailFileName, device.thumbNail, overWrite: true)
+                        DeviceStore.it.updatedSnapshotDeviceId.value = device.id
+                    }
+                }
+            }
+        }
     }
 }
 

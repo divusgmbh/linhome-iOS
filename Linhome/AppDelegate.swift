@@ -148,6 +148,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                         if(Config.useInAppCallKit) {
                             if let callId = call.callLog?.callId {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+                                    self.storeSnapshotForDevice(call: call)
                                     self.notifyMissedCall(callId: callId)
                                 }
                             }
@@ -280,6 +281,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             } else {
                 try await Task.sleep(nanoseconds: 500_000_000)
             }
+            self.storeSnapshotForDevice(call: call)
             if(Config.useInAppCallKit) {
                 if let callId = call.callLog?.callId {
                     self.notifyMissedCall(callId: callId)
@@ -300,6 +302,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             Log.info("Error in processing end of call in background: \(error.localizedDescription)")
         }
     }
+    
+    private func storeSnapshotForDevice(call: Call){
+        DeviceStore.it.readDevicesFromFriends()
+        if let device = DeviceStore.it.findDeviceByAddress(address: call.remoteAddress!) {
+            if (CorePreferences.them.showLatestSnapshot || !device.hasThumbNail()) {
+                if let event = call.callLog?.getHistoryEvent() {
+                    if (event.hasMediaThumbnail()) {
+                        FileUtil.copy(event.mediaThumbnailFileName, device.thumbNail, overWrite: true)
+                        DeviceStore.it.updatedSnapshotDeviceId.value = device.id
+                    }
+                }
+            }
+        }
+    }
+    
     private func setupCallKit() {
         let config = CXProviderConfiguration()
         config.supportsVideo = true

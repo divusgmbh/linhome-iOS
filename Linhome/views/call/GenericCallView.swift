@@ -82,6 +82,9 @@ class GenericCallView : ViewWithModel {
 		self.callViewModel!.callState.removeObserver(observer: self.callStateObserver!)
 		self.callViewModel!.end()
 		NavigationManager.it.navigateUp()
+        if NavigationManager.it.viewStack.isEmpty {
+            NavigationManager.it.mainView?.viewWillAppear(false)
+        }
 	}
 	
 	override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {

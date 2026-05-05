@@ -162,7 +162,10 @@ class MainView: ViewWithModel, UIDynamicAnimatorDelegate {
                     if NavigationManager.it.viewStack.isEmpty {
                         DeviceStore.it.readDevicesFromFriends()
                     }
-					self.historyTab.performTap()
+                    // Do not navigate if the target view is already in place to avoid false viewWillDisappear calls
+                    if !(NavigationManager.it.viewStack.last is HistoryView) {
+                        self.historyTab.performTap()
+                    }
 					(UIApplication.shared.delegate as! AppDelegate).historyNotifTapped = false
 				}
 			}
@@ -177,10 +180,13 @@ class MainView: ViewWithModel, UIDynamicAnimatorDelegate {
             if NavigationManager.it.viewStack.isEmpty {
                 DeviceStore.it.readDevicesFromFriends()
             }
-			self.historyTab.performTap()
+            // Do not navigate if the target view is already in place to avoid false viewWillDisappear calls
+            if !(NavigationManager.it.viewStack.last is HistoryView) {
+                self.historyTab.performTap()
+            }
 			(UIApplication.shared.delegate as! AppDelegate).historyNotifTapped = false
 		} else {
-			devicesTab.performTap()
+            devicesTab.performTap()
 		}
 		
 		if (!LinhomeAccount.it.configured()) {

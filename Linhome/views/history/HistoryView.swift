@@ -140,12 +140,12 @@ class HistoryView: MainViewContent, UITableViewDataSource, UITableViewDelegate {
 	
 	
 	override func viewWillDisappear(_ animated: Bool) {
-		model.markEventsAsRead()
-		NavigationManager.it.mainView!.tabbarViewModel.updateUnreadCount()
-		NavigationManager.it.mainView?.toolbarViewModel.rightButtonVisible.value = false
-		/*NotificationCenter.default.removeObserver(self,
-												  name: UIApplication.didBecomeActiveNotification,
-												  object: nil)*/
+        model.markEventsAsRead()
+        NavigationManager.it.mainView!.tabbarViewModel.updateUnreadCount()
+        NavigationManager.it.mainView?.toolbarViewModel.rightButtonVisible.value = false
+        /*NotificationCenter.default.removeObserver(self,
+                                                  name: UIApplication.didBecomeActiveNotification,
+                                                  object: nil)*/
         if(Config.markUnreadOnAppEnterBkg) {
             NotificationCenter.default.removeObserver(self,
                                                       name: UIApplication.willResignActiveNotification,

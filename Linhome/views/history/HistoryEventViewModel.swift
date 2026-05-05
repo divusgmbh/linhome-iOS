@@ -45,6 +45,7 @@ class HistoryEventViewModel : ViewModel {
 	
 	
 	func callTypeIcon() -> String {
+		if callLog.getHistoryEvent().forcedMissed { return "icons/missed" }
 		switch (callLog.status) {
 		case Call.Status.Missed: return "icons/missed"
 		case Call.Status.Declined, Call.Status.DeclinedElsewhere: return "icons/declined"
@@ -61,11 +62,15 @@ class HistoryEventViewModel : ViewModel {
 		let callTime = dateFormatter.string(from: date)
 		
 		var typeText : String? = nil
+		if callLog.getHistoryEvent().forcedMissed {
+			typeText = "history_list_call_type_missed"
+		} else {
 		switch (callLog.status) {
 		case Call.Status.Missed : typeText = "history_list_call_type_missed"
 		case Call.Status.Declined, Call.Status.DeclinedElsewhere : typeText = "history_list_call_type_declined"
 		case Call.Status.Aborted, Call.Status.EarlyAborted : typeText = "history_list_call_type_aborted"
 		case Call.Status.Success, Call.Status.AcceptedElsewhere : typeText = callLog.dir == Call.Dir.Incoming ? "history_list_call_type_accepted" : "history_list_call_type_called"
+		}
 		}
 		
 		return Texts.get(

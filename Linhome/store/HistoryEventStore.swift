@@ -51,7 +51,8 @@ class HistoryEventStore {
 										  viewedByUser: historyEventsConfig.getBool(section: it, key: "viewed_by_user", defaultValue: false),
 										  mediaFileName: historyEventsConfig.getString(section: it, key: "media_file_name") ?? "",
 										  mediaThumbnailFileName: historyEventsConfig.getString(section: it, key: "media_thumbnail_file_name") ?? "",
-										  hasVideo: historyEventsConfig.getBool(section: it, key: "has_video", defaultValue: false)
+										  hasVideo: historyEventsConfig.getBool(section: it, key: "has_video", defaultValue: false),
+										  forcedMissed: historyEventsConfig.getBool(section: it, key: "forced_missed", defaultValue: false)
 				)
 			}
 		}
@@ -77,6 +78,7 @@ class HistoryEventStore {
 			)
 			historyEventsConfig.setString(section: entry.value.id, key: "call_id", value: entry.value.callId)
 			historyEventsConfig.setBool(section: entry.value.id, key: "has_video", value: entry.value.hasVideo)
+			historyEventsConfig.setBool(section: entry.value.id, key: "forced_missed", value: entry.value.forcedMissed)
 		}
 		FileUtil.write(string: historyEventsConfig.dumpAsXml(), toPath: historyEventsXml)
 	}

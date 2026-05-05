@@ -56,6 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private let callController = CXCallController()
     private var appCallDelegate: CallDelegateStub?
     private var missedCallPreId: String?
+    private var callkitTimer: Timer?
     // Background task
     private var backgroundTaskID = UIBackgroundTaskIdentifier.invalid
     
@@ -141,6 +142,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     call.extendedClose(core: Core.get())
                     // Correct missed call if not using callkit
                     if (!Config.useInAppCallKit) {
+                        self.callKitTimerCleanup()
                         if let callId = call.callLog?.callId {
                             let missed = NSNumber(value: Core.get().missedCount())
                             UserDefaults(suiteName: Config.appGroupName)?.set(missed, forKey: "notification_badge_"+callId)
@@ -153,11 +155,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                         }
                     }else{
                         if(Config.useInAppCallKit) {
-                            if let callId = call.callLog?.callId {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-                                    self.storeSnapshotForDevice(call: call)
-                                    self.notifyMissedCall(callId: callId)
-                                }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+                                self.storeSnapshotForDevice(call: call)
+                                self.notifyMissedCall(call: call)
                             }
                         }
                     }
@@ -248,6 +248,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 					}
 				}
 				if (cstate == Call.State.Connected) {
+                    if (Config.useInAppCallKit) {
+                        self.callKitTimerCleanup()
+                    }
 					call.callLog.map{self.hasBeenConnected.append($0.callId)}
 					DispatchQueue.main.async {
 						NavigationManager.it.navigateTo(childClass: CallInProgressView.self, asRoot:false, argument:Pair(call, [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote]))
@@ -289,9 +292,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
             self.storeSnapshotForDevice(call: call)
             if(Config.useInAppCallKit) {
-                if let callId = call.callLog?.callId {
-                    self.notifyMissedCall(callId: callId)
-                }
+                self.notifyMissedCall(call: call)
             }
             if #available(iOS 16.0, *) {
                 try await Task.sleep(for: .milliseconds(500))
@@ -610,8 +611,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
     
-    func notifyMissedCall(callId: String) {
-        let ud = UserDefaults(suiteName: Config.appGroupName)!
+    func notifyMissedCall(call: Call) {
         /*if let preId = missedCallPreId, !preId.isEmpty {
             UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [preId])
         }*/
@@ -620,18 +620,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let title = Texts.get("notif_missed_call_title")
         var body: String = ""
         if (Config.notifyEachMissedCall) {
-            let name = ud.string(forKey: "notification_title_" + callId)
-            body = Texts.get("notif_missed_call", oneArg: name ?? "")
+            if (call.callLog?.status != .Missed && (call.callLog?.getHistoryEvent().forcedMissed != true)) {
+                    return
+            }
+            if let callId = call.callLog?.callId {
+                let name = UserDefaults(suiteName: Config.appGroupName)?.string(forKey: "notification_title_" + callId)
+                body = Texts.get("notif_missed_call", oneArg: name ?? "")
+            }
         } else {
             if ( unread < 1 ) {
                 return
             }
-            if unread > 1 {
-                body = Texts.get("notif_missed_calls", oneArg: "\(unread)")
-            } else {
-                let name = ud.string(forKey: "notification_title_" + callId)
-                body = Texts.get("notif_missed_call", oneArg: name ?? "")
-            }
+            body = Texts.get("notif_missed_calls_singular", oneArg: "\(unread)")
         }
         missedCallPreId = showLocalNotification(
             title: title,
@@ -663,6 +663,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             if let error = error { Log.error("[Notification] Failed to show banner: \(error)") }
         }
         return identifier
+    }
+    
+    private func handleOsShutdown() {
+        if let call = Core.get().currentCall {
+            if let log = call.callLog {
+                let event = log.getHistoryEvent()
+                event.forcedMissed = true
+                event.persist()
+            }
+            try? call.decline(reason: .Busy)
+            
+            // Update callkit
+            if let callId = call.callLog?.callId {
+                if let obj = pendingCallKitIds.first(where: {$0.value == callId}) {
+                    callKitAcceptedCallIds.remove(callId)
+                    pendingCallKitIds.removeValue(forKey: obj.key)
+                    let endAction = CXEndCallAction(call: obj.key)
+                    let transaction = CXTransaction(action: endAction)
+                    self.callController.request(transaction) { _ in }
+                }
+            }
+        }
+        self.callKitTimerCleanup()
+    }
+
+    private func callKitTimerCleanup() {
+        self.callkitTimer?.invalidate()
+        self.callkitTimer = nil
     }
 }
 
@@ -741,6 +769,15 @@ extension AppDelegate: PKPushRegistryDelegate {
             update.localizedCallerName = displayName
             provider.reportCall(with: uuid, updated: update)
         }
+        
+        // Check for max. 25 seconds allowed in background
+        DispatchQueue.main.async {
+                self.callkitTimer?.invalidate() // Clear any old timers
+                self.callkitTimer = Timer.scheduledTimer(withTimeInterval: 25.0, repeats: false) { [weak self] _ in
+                    Log.info("CallKit Timer fired: Handle missed call before OS shutdown")
+                    self?.handleOsShutdown()
+                }
+            }
     }
 }
 

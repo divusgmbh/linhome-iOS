@@ -144,7 +144,7 @@ extension Core {
 	func missedCount() -> Int {
 		var count = 0
 		callLogsWithNonEmptyCallId().forEach { it in
-            if (it.isNew() && it.status == Call.Status.Missed) {
+			if (it.isNew() && (it.status == Call.Status.Missed || it.getHistoryEvent().forcedMissed)) {
 				count += 1
 			}
 		}

@@ -27,6 +27,7 @@ class HistoryEvent {
 	var mediaFileName: String!
 	var mediaThumbnailFileName: String!
     var hasVideo: Bool = false
+    var forcedMissed: Bool = false
     var isRecordRunning: Bool = false   // Lock-Marker for recording start/stop
     var recorder: Recorder? = nil   // Recorder for recording
     var rdTimer: Timer? // Timer for checking record duration
@@ -37,13 +38,14 @@ class HistoryEvent {
 		self.mediaThumbnailFileName = StorageManager.it.callsRecordingsDir +  "\(id).jpg"
 	}
 	
-	init(id:String, callId:String, viewedByUser:Bool, mediaFileName:String, mediaThumbnailFileName:String, hasVideo:Bool) {
+	init(id:String, callId:String, viewedByUser:Bool, mediaFileName:String, mediaThumbnailFileName:String, hasVideo:Bool, forcedMissed:Bool = false) {
 		self.id = id
 		self.callId = callId
 		self.viewedByUser = viewedByUser
 		self.mediaFileName = mediaFileName
 		self.mediaThumbnailFileName = mediaThumbnailFileName
 		self.hasVideo = hasVideo
+		self.forcedMissed = forcedMissed
 	}
 	
     func hasMedia() -> Bool {

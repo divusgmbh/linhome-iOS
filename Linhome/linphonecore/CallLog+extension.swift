@@ -51,11 +51,9 @@ extension CallLog {
 	
 	func isNew() -> Bool {
 		let event = getHistoryEvent()
-		return dir == Call.Dir.Incoming && [
-			Call.Status.Missed,
-			//Call.Status.Declined,
-			Call.Status.DeclinedElsewhere
-			].contains(status) && !event.viewedByUser
+		return dir == Call.Dir.Incoming && (
+			[Call.Status.Missed, Call.Status.DeclinedElsewhere].contains(status) || event.forcedMissed
+		) && !event.viewedByUser
 	}
 }
 

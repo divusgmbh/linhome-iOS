@@ -39,11 +39,14 @@ extension Vcard {
 			Log.error("[Device] vCard validation : invalid type \(getExtendedPropertiesValuesByName(name: Device.vcard_device_type_header).first)")
 			return false
 		}
-		guard let remoteDtmfMethod = getExtendedPropertiesValuesByName(name: Device.vcard_action_method_type_header).first,
-				let localDtmfMethod = Device.vCardActionMethodsToDeviceMethods[remoteDtmfMethod],
-				ActionsMethodTypes.it.methodTypeIsSupported(typeKey: localDtmfMethod) else {
-			Log.error("[Device] vCard validation : invalid dtmf sending method \(getExtendedPropertiesValuesByName(name: Device.vcard_action_method_type_header).first)")
-			return false
+		let hasActions = !getExtendedPropertiesValuesByName(name: Device.vcard_actions_list_header).isEmpty
+		if hasActions {
+			guard let remoteDtmfMethod = getExtendedPropertiesValuesByName(name: Device.vcard_action_method_type_header).first,
+					let localDtmfMethod = Device.vCardActionMethodsToDeviceMethods[remoteDtmfMethod],
+					ActionsMethodTypes.it.methodTypeIsSupported(typeKey: localDtmfMethod) else {
+				Log.error("[Device] vCard validation : invalid dtmf sending method \(getExtendedPropertiesValuesByName(name: Device.vcard_action_method_type_header).first)")
+				return false
+			}
 		}
 		var validActions = true
 		getExtendedPropertiesValuesByName(name: Device.vcard_actions_list_header).forEach { action in

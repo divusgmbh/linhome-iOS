@@ -50,7 +50,9 @@ class Device  {
 				let _ = try friend.createVcard(name: name)
 				friend.vcard?.addExtendedProperty(name: Device.vcard_device_type_header, value: type!)
 				friend.vcard?.addSipAddress(sipAddress: address)
-				friend.vcard?.addExtendedProperty(name: Device.vcard_action_method_type_header,value: Device.deviceActionMethodsTovCardActionMethods()[actionsMethodType!]!)
+				if let methodType = actionsMethodType, let vCardMethod = Device.deviceActionMethodsTovCardActionMethods()[methodType] {
+					friend.vcard?.addExtendedProperty(name: Device.vcard_action_method_type_header, value: vCardMethod)
+				}
 				actions?.forEach { it in
 					friend.vcard?.addExtendedProperty(name: Device.vcard_actions_list_header,value:it.type! + "," + it.code!)
 				}

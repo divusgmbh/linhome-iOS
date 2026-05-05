@@ -139,6 +139,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 
                 if (cstate == Call.State.End) {
                     call.extendedClose(core: Core.get())
+                    // Correct missed call if not using callkit
+                    if (!Config.useInAppCallKit) {
+                        if let callId = call.callLog?.callId {
+                            let missed = NSNumber(value: Core.get().missedCount())
+                            UserDefaults(suiteName: Config.appGroupName)?.set(missed, forKey: "notification_badge_"+callId)
+                        }
+                    }
                     if (UIApplication.shared.applicationState == .background) { // A call is terminated in background
                         // Process end of call in background task
                         Task.detached(priority: .background) {

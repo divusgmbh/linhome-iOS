@@ -76,6 +76,8 @@ extension Config {
     static let enabledRemoteVcards: Bool = false
     // Mark history calls as unread and reset badge when moving App into background with history call opened
     static let markUnreadOnAppEnterBkg: Bool = true
+    // Notification for each missed call or single summary notification for generic missed calls
+    static let notifyEachMissedCall: Bool = true
 
 	// Push related
 	static let pushNotificationsInterval =  Config.get().getInt(section: "net", key: "pn-call-remote-push-interval", defaultValue: 3)

@@ -617,17 +617,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }*/
         //let unread = ud.integer(forKey: "notification_badge_" + callId)
         let unread = Core.get().missedCount()
-        if ( unread < 1 ) {
-            return
-        }
-            
         let title = Texts.get("notif_missed_call_title")
-        let body: String
-        if unread > 1 {
-            body = Texts.get("notif_missed_calls", oneArg: "\(unread)")
-        } else {
+        var body: String = ""
+        if (Config.notifyEachMissedCall) {
             let name = ud.string(forKey: "notification_title_" + callId)
             body = Texts.get("notif_missed_call", oneArg: name ?? "")
+        } else {
+            if ( unread < 1 ) {
+                return
+            }
+            if unread > 1 {
+                body = Texts.get("notif_missed_calls", oneArg: "\(unread)")
+            } else {
+                let name = ud.string(forKey: "notification_title_" + callId)
+                body = Texts.get("notif_missed_call", oneArg: name ?? "")
+            }
         }
         missedCallPreId = showLocalNotification(
             title: title,
@@ -635,14 +639,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             badge: NSNumber(value: unread),
             actionTag: "missed_calls"
         )
-        // Cleanup all notifications
-        let semaphore = DispatchSemaphore(value: 0)
-        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-            let idsToRemove = notifications.map { $0.request.identifier }.filter { $0 != self.missedCallPreId }
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: idsToRemove)
-            semaphore.signal()
+        if (!Config.notifyEachMissedCall) {
+            // Cleanup all notifications
+            let semaphore = DispatchSemaphore(value: 0)
+            UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+                let idsToRemove = notifications.map { $0.request.identifier }.filter { $0 != self.missedCallPreId }
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: idsToRemove)
+                semaphore.signal()
+            }
+            semaphore.wait()
         }
-        semaphore.wait()
     }
 
     func showLocalNotification(title: String, body: String, sound: UNNotificationSound? = .default, badge: NSNumber? = nil, actionTag: String? = nil, identifier: String = UUID().uuidString) -> String {

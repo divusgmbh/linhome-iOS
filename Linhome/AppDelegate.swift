@@ -156,12 +156,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     }
                 }
 				
-				if (cstate == Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background
+				/*if (cstate == Call.State.Released && UIApplication.shared.applicationState == .background) { // A call is terminated in background
 					DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-						//self.applicationWillResignActive(UIApplication.shared)
-                        self.enterBackground()
+						self.applicationWillResignActive(UIApplication.shared)
 					}
-				}
+				}*/
 				
 				if (cstate == Call.State.Released && call.callLog?.dir == .Incoming) {
 					if (self.appOpenedTime.timeIntervalSince1970 > Double((call.callLog?.startDate ?? 0))) {
@@ -414,26 +413,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
 			NavigationManager.it.mainView?.tabbarViewModel.updateUnreadCount()
             // Re-check for incoming call that arrived while in background
-            if let incomingCall = Core.get().calls.first(where: {
-                [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia].contains($0.state)
-                }), !NavigationManager.it.incomingViewDisplaying {
-                    NavigationManager.it.navigateTo(
-                            childClass: CallIncomingView.self,
-                            asRoot: false,
-                            argument: Pair(incomingCall, [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia])
-                    )
-            }
-            // Re-check for call accepted via CallKit while app was still in background
-            if Config.useInAppCallKit,
-               let connectedCall = Core.get().calls.first(where: {
+            if (Config.useInAppCallKit) {
+               if let connectedCall = Core.get().calls.first(where: {
                 [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote].contains($0.state)
                }),
-               !NavigationManager.it.viewStack.contains(where: { $0 is CallInProgressView }) {
-                NavigationManager.it.navigateTo(
+                  !NavigationManager.it.viewStack.contains(where: { $0 is CallInProgressView }) {
+                   NavigationManager.it.navigateTo(
                     childClass: CallInProgressView.self,
                     asRoot: false,
                     argument: Pair(connectedCall, [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote])
-                )
+                   )
+               }
+            }else{
+                if let incomingCall = Core.get().calls.first(where: {
+                    [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia].contains($0.state)
+                    }), !NavigationManager.it.incomingViewDisplaying {
+                        NavigationManager.it.navigateTo(
+                                childClass: CallIncomingView.self,
+                                asRoot: false,
+                                argument: Pair(incomingCall, [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia])
+                        )
+                }
             }
             // For the case the App is awoken in background over VoIP push and opened with empty stack
             // ViewWillAppear of the main view won't trigger in that moment

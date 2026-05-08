@@ -78,6 +78,8 @@ extension Config {
     static let markUnreadOnAppEnterBkg: Bool = true
     // Notification for each missed call or single summary notification for generic missed calls
     static let notifyEachMissedCall: Bool = true
+    // Force video disabled always also if migrating video recordings from older versions
+    static let forceNoVideo: Bool = true
 
 	// Push related
 	static let pushNotificationsInterval =  Config.get().getInt(section: "net", key: "pn-call-remote-push-interval", defaultValue: 3)

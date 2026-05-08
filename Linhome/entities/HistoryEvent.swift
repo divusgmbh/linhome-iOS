@@ -57,7 +57,7 @@ class HistoryEvent {
     }
     
     func hasMediaVideo() -> Bool {
-        return FileUtil.fileExistsAndIsNotEmpty(path: mediaFileName)
+        return Config.forceNoVideo ? false : FileUtil.fileExistsAndIsNotEmpty(path: mediaFileName)
     }
 
     func persist() {

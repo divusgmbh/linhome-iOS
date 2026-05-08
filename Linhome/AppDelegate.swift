@@ -617,7 +617,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }*/
         //let unread = ud.integer(forKey: "notification_badge_" + callId)
         let unread = Core.get().missedCount()
-        let title = Texts.get("notif_missed_call_title")
+        var title = Texts.get("notif_missed_call_singular_title")
         var body: String = ""
         if (Config.notifyEachMissedCall) {
             if (call.callLog?.status != .Missed && (call.callLog?.getHistoryEvent().forcedMissed != true)) {
@@ -628,6 +628,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 body = Texts.get("notif_missed_call", oneArg: name ?? "")
             }
         } else {
+            title = Texts.get("notif_missed_call_title")
             if ( unread < 1 ) {
                 return
             }

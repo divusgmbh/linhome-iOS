@@ -1,4 +1,5 @@
-
 [submodule "linhome-shared-themes"]
 	path = linhome-shared-themes
-	url = ../linhome-shared-themes
+	url = git@vsgit.office.pexta.eu:products/videophone_mobile/linhome-shared-themes.git
+[submodule]
+	linhome-shared-themes = master-divus

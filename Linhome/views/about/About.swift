@@ -50,7 +50,18 @@ class About: MainViewContent {
 		linhomeTitle.prepare(styleKey: "splash_title",textKey: "splash_title")
         	linhomeTitle.isHidden = true
         
-		appVersion.prepare(styleKey: "about_text",textKey:"app_version",arg1:"iOS", arg2:"\(GIT_VERSION) - \(Bundle.main.desc())")
+        let buildInfoName = Bundle.main.appName()
+        let buildInfoVersion = Bundle.main.appVersion
+        let buildInfoVersionCode = Bundle.main.buildVersionNumber
+        let buildInfoBranch = BUILDINFO_BRANCH
+        let buildInfoCommit = BUILDINFO_COMMIT
+        let buildInfoTimestamp = BUILDINFO_TIMESTAMP
+		appVersion.prepare(styleKey: "about_text")
+        appVersion.numberOfLines = 4
+        appVersion.text = buildInfoName + " " + buildInfoVersion + " (" + buildInfoVersionCode! + ")\r"
+        + buildInfoBranch + "\r"
+        + buildInfoCommit + "\r"
+        + buildInfoTimestamp
 		coreVersion.prepare(styleKey: "about_text",textKey:"sdk_version",arg1:Core.getVersion)
 
 		linhomeOrg.prepare(styleKey: "about_link",textKey: "about_link")

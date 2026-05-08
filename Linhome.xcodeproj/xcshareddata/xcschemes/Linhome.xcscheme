@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "cd ${PROJECT_DIR}&#10;grep `./git-version.sh` Linhome/GitVersion.swift&#10;if [ $? -eq 1 ]; then&#10;&#9;echo &quot;import Foundation&quot; &gt; Linhome/GitVersion.swift&#10;&#9;echo &quot;let GIT_VERSION = \&quot;`./git-version.sh`\&quot;&quot; &gt;&gt;  Linhome/GitVersion.swift&#10;fi&#10;">
+               scriptText = "cd ${PROJECT_DIR}&#10;#grep `./git-version.sh` Linhome/GitVersion.swift&#10;#if [ $? -eq 1 ]; then&#10;&#9;echo &quot;import Foundation&quot; &gt; Linhome/GitVersion.swift&#10;&#9;#echo &quot;let GIT_VERSION = \&quot;`./git-version.sh`\&quot;&quot; &gt;&gt;  Linhome/GitVersion.swift&#10;    echo `./git-version.sh` &gt;&gt;  Linhome/GitVersion.swift   &#10;#fi&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"

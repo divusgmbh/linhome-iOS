@@ -59,7 +59,7 @@ class ChunkCallVideoOrIcon: UIViewController {
 		iconView = UIImageView()
 		let iconSize = ChunkCallVideoOrIcon.usableWidth() * iconPercentageOfScreenWidth * ( UIDevice.ipad() ? 0.5 : 1)
 		iconView!.frame = CGRect(x: 0,y: 0,width: iconSize ,height: iconSize)
-		iconView!.prepare(iconName: DeviceTypes.it.iconNameForDeviceType(typeKey:  (callViewModel.device != nil && callViewModel.device!.type != nil ? callViewModel.device!.type! : callViewModel.defaultDeviceType)!, circle: true)!, fillColor: "color_c", bgColor: nil)
+		iconView!.prepare(iconName: DeviceTypes.it.iconNameForDeviceType(typeKey:  (callViewModel.device != nil && callViewModel.device!.type != nil ? callViewModel.device!.type! : callViewModel.defaultDeviceType)!, circle: true)!, fillColor: nil, bgColor: nil)
 		self.view.addSubview(iconView!)
 		iconView?.snp.makeConstraints { make in
 			make.centerX.centerY.equalToSuperview()

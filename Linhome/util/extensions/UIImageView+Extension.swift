@@ -75,9 +75,25 @@ extension UIImageView {
 				subview.removeFromSuperview()
 			}
 			addSubview(svgImageView)
+
+			// PocketSVG scales path coords but not stroke-width; apply the same scale to lineWidth.
+			svgImageView.layoutIfNeeded()
+			var nativeBounds = CGRect.null
+			for p in SVGBezierPath.pathsFromSVG(at: svg) {
+				nativeBounds = nativeBounds.union(p.cgPath.boundingBoxOfPath)
+			}
+			if nativeBounds.width > 0 {
+				let strokeScale = bounds.width / nativeBounds.width
+				for sublayer in svgImageView.layer.sublayers ?? [] {
+					if let sl = sublayer as? CAShapeLayer, sl.lineWidth > 0 {
+						sl.lineWidth *= strokeScale
+					}
+				}
+			}
+
 			return
 		}
-		
+
 		var png = FileUtil.sharedContainerUrl()
 		png.appendPathComponent("images/\(iconName).png")
 		if (FileManager().fileExists(atPath: png.path)) {

@@ -231,7 +231,7 @@ extension Core {
     public func configureVoIPPushNotifications(_ deviceToken: PKPushCredentials) { // Should be called by the app when a push token is made abvailable. It adds it to the default proxy config.
         Core.voipToken = deviceToken.token.map { String(format: "%02.2hhx", $0) }.joined()
         Log.info("VoIP Push token received from device:"+Core.voipToken!)
-        /idRegisterForRemotePushWithStringifiedToken(deviceTokenStr: Core.voipToken)
+        didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: Core.voipToken)
         //didRegisterForRemotePushWithStringifiedToken(deviceTokenStr: "\(Core.voipToken):remote")
         Core.get().accountList.forEach { account in
             account.configurePushNotificationParameters()

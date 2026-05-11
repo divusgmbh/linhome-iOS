@@ -249,10 +249,12 @@ class NotificationService: UNNotificationServiceExtension {
 		
 		callDelegate =  CallDelegateStub(onNextVideoFrameDecoded : { (call: Call) -> Void in
 				if let event = call.callLog?.getHistoryEvent() {
-					if (!event.hasVideo) {
-						event.hasVideo = true
-						event.persist()
-					}
+                    if(!Config.forceNoVideo) {
+                        if (!event.hasVideo) {
+                            event.hasVideo = true
+                            event.persist()
+                        }
+                    }
 					if (!event.hasMediaThumbnail()) {
 						try? call.takeVideoSnapshot(filePath: event.mediaThumbnailFileName)
                         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {

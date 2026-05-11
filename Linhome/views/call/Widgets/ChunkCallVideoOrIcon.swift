@@ -121,16 +121,16 @@ class ChunkCallVideoOrIcon: UIViewController {
 			}
 		}
 		
-		callViewModel.videoContent.readCurrentAndObserve { (hasVideo) in
-			someText?.isHidden = hasVideo == true
+		callViewModel.videoContent.readCurrentAndObserve { (hasVideoStream) in
+			someText?.isHidden = hasVideoStream == true
 			let videoPreviewWidth = ChunkCallVideoOrIcon.usableWidth() * self.videoPreviewPercentageOfScreenWidth
 			self.view.snp.remakeConstraints{ (make) in
-				if (hasVideo == true) {
+				if (hasVideoStream == true) {
 					make.width.equalTo(videoPreviewWidth)
 				} else if (self.view.superview != nil) {
 					make.width.equalTo(self.view.superview!.snp.width)
 				}
-				make.height.equalTo(hasVideo! ? videoPreviewWidth / self.videoAspectRatio : iconSize)
+				make.height.equalTo(hasVideoStream! ? videoPreviewWidth / self.videoAspectRatio : iconSize)
 			}
 
 			if (!initialReading && self.owningViewContraintMaker != nil) {
@@ -138,10 +138,10 @@ class ChunkCallVideoOrIcon: UIViewController {
 			}
 			initialReading = false
 			
-			self.iconView!.isHidden = hasVideo!
-			self.videoView!.isHidden = !hasVideo!
+			self.iconView!.isHidden = hasVideoStream!
+			self.videoView!.isHidden = !hasVideoStream!
 			
-			self.fullSizeVideoButton!.isHidden = !hasVideo!
+			self.fullSizeVideoButton!.isHidden = !hasVideoStream!
 		}
 						
 	}

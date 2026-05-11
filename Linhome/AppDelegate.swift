@@ -229,10 +229,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                         self.appCallDelegate = CallDelegateStub(
                             onNextVideoFrameDecoded: { (call: Call) -> Void in
                                 if let event = call.callLog?.getHistoryEvent() {
-                                    if (!event.hasVideo) {
-                                        event.hasVideo = true
-                                        event.persist()
-                                    }
+                                    if(!Config.forceNoVideo){
+                                        if (!event.hasVideo) {
+                                            event.hasVideo = true
+                                            event.persist()
+                                        }
+                                    } 
                                     if (!event.hasMediaThumbnail()) {
                                         try? call.takeVideoSnapshot(filePath: event.mediaThumbnailFileName)
                                     }
@@ -433,6 +435,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     asRoot: false,
                     argument: Pair(connectedCall, [Call.State.Connected, Call.State.StreamsRunning, Call.State.Updating, Call.State.UpdatedByRemote])
                    )
+               } else if let incomingCall = Core.get().calls.first(where: {
+                   [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia].contains($0.state)
+                   }), !NavigationManager.it.incomingViewDisplaying {
+                       NavigationManager.it.navigateTo(
+                               childClass: CallIncomingView.self,
+                               asRoot: false,
+                               argument: Pair(incomingCall, [Call.State.IncomingReceived, Call.State.IncomingEarlyMedia])
+                       )
                }
             }else{
                 if let incomingCall = Core.get().calls.first(where: {

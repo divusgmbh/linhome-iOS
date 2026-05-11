@@ -49,7 +49,7 @@ class CallViewModel : ViewModel {
 		super.init()
 		self.speakerDisabled.value = !speakerOn()
 		if let event = call.callLog?.getHistoryEvent() {
-			videoContent.value = event.hasVideo
+            videoContent.value = call.videoStats != nil
 		}
 		
 		callDelegate =  CallDelegateStub(
@@ -70,12 +70,14 @@ class CallViewModel : ViewModel {
 				if let recordingFile = call.params?.recordFile, let mimeType = call.currentParams?.usedVideoPayloadType?.mimeType {
 					Core.get().config?.setString(section: "recording_formats",key: recordingFile,value: mimeType)
 				}
-				self.videoContent.value = true
-				if let event = call.callLog?.getHistoryEvent() {
-					if (!event.hasVideo) {
-						event.hasVideo = true
-						event.persist()
-					}
+                if let event = call.callLog?.getHistoryEvent() {
+                    if(!Config.forceNoVideo) {
+                        if (!event.hasVideo) {
+                            event.hasVideo = true
+                            event.persist()
+                        }
+                    }
+                    self.videoContent.value = call.videoStats != nil
 					if (!event.hasMediaThumbnail()) {
 						try? call.takeVideoSnapshot(filePath: event.mediaThumbnailFileName)
 						DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {

@@ -59,6 +59,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var callkitTimer: Timer?
     // Background task
     private var backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+    // Missed call count
+    private let notifMissedMaxCount:Int = 20
+    private var lastMissedCallNotificationId: String = ""
+    private var notifMissedCalls = [String]()
     
     // CFMessagePort for other processes to know if the App is active
     // var messagePort: CFMessagePort?
@@ -655,6 +659,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             badge: NSNumber(value: unread),
             actionTag: "missed_calls"
         )
+        notifMissedCalls.append(missedCallPreId!)
         if (!Config.notifyEachMissedCall) {
             // Cleanup all notifications
             let semaphore = DispatchSemaphore(value: 0)
@@ -664,6 +669,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 semaphore.signal()
             }
             semaphore.wait()
+        }else{
+            if(notifMissedCalls.count > notifMissedMaxCount){
+                let toDismiss = notifMissedCalls[0]
+                if (!toDismiss.isEmpty) {
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [toDismiss])
+                }
+                notifMissedCalls.remove(at: 0)
+            }
         }
     }
 

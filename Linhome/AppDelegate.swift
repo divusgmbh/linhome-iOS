@@ -630,8 +630,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         var title = Texts.get("notif_missed_call_singular_title")
         var body: String = ""
         if (Config.notifyEachMissedCall) {
-            if (call.callLog?.status != .Missed && (call.callLog?.getHistoryEvent().forcedMissed != true)) {
+            if (call.callLog?.status != .Missed && (call.callLog?.getHistoryEvent().forcedMissed != true) && call.callLog?.status != .DeclinedElsewhere && call.callLog?.status != .AcceptedElsewhere) {
                     return
+            }
+            if(call.callLog?.status == .DeclinedElsewhere) {
+                title = Texts.get("notif_declined_elsewhere_call_title")
+            } else if(call.callLog?.status == .AcceptedElsewhere) {
+                title = Texts.get("notif_accepted_elsewhere_call_title")
             }
             if let callId = call.callLog?.callId {
                 let name = UserDefaults(suiteName: Config.appGroupName)?.string(forKey: "notification_title_" + callId)

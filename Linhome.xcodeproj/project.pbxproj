@@ -524,6 +524,27 @@
 			remoteGlobalIDString = A845402EF959A57A4640F2A4F5155943;
 			remoteInfo = Zip;
 		};
+		907E15EE2FE3CB0100225F7D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90147EE92F9A71BB00CB735E /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D09548CAD561FBEFD175953D5A21E031;
+			remoteInfo = DeviceGuru;
+		};
+		907E15F02FE3CB0100225F7D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90147EE92F9A71BB00CB735E /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 055ABC47BD9853EAEDC193C1FD6D5000;
+			remoteInfo = "DeviceGuru-DeviceGuru";
+		};
+		907E15F22FE3CB0100225F7D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90147EE92F9A71BB00CB735E /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BD3E8A6BC93C2DAE126C79E6D4C7FE31;
+			remoteInfo = "linphone-sdk";
+		};
 		C6DA26A4240FA94400CDF3D7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C676AD6C24040F6C0048C504 /* Project object */;
@@ -4257,6 +4278,8 @@
 		90147EEB2F9A71BB00CB735E /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				907E15EF2FE3CB0100225F7D /* DeviceGuru.framework */,
+				907E15F12FE3CB0100225F7D /* DeviceGuru.bundle */,
 				90147F132F9A71BC00CB735E /* DropDown.framework */,
 				90147F152F9A71BC00CB735E /* FirebaseCore.framework */,
 				90147F172F9A71BC00CB735E /* FirebaseCore_Privacy.bundle */,
@@ -4276,6 +4299,7 @@
 				90147F332F9A71BC00CB735E /* GoogleUtilities_Privacy.bundle */,
 				90147F352F9A71BC00CB735E /* IQKeyboardManager.framework */,
 				90147F372F9A71BC00CB735E /* IQKeyboardManager.bundle */,
+				907E15F32FE3CB0100225F7D /* linphonesw.framework */,
 				90147F392F9A71BC00CB735E /* MarqueeLabel.framework */,
 				90147F3B2F9A71BC00CB735E /* MarqueeLabel.bundle */,
 				90147F3D2F9A71BC00CB735E /* nanopb.framework */,
@@ -5189,6 +5213,27 @@
 			remoteRef = 90147F582F9A71BC00CB735E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		907E15EF2FE3CB0100225F7D /* DeviceGuru.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DeviceGuru.framework;
+			remoteRef = 907E15EE2FE3CB0100225F7D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		907E15F12FE3CB0100225F7D /* DeviceGuru.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = DeviceGuru.bundle;
+			remoteRef = 907E15F02FE3CB0100225F7D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		907E15F32FE3CB0100225F7D /* linphonesw.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = linphonesw.framework;
+			remoteRef = 907E15F22FE3CB0100225F7D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -5917,7 +5962,7 @@
 				CODE_SIGN_ENTITLEMENTS = Linhome/Linhome.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 28;
 				DEVELOPMENT_TEAM = K24U7C2CWL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Linhome/app-Info.plist";
@@ -5926,7 +5971,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = eu.divus.videophonemobile;
 				PRODUCT_NAME = Linhome;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -5946,7 +5991,7 @@
 				CODE_SIGN_ENTITLEMENTS = Linhome/Linhome.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 28;
 				DEVELOPMENT_TEAM = K24U7C2CWL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Linhome/app-Info.plist";
@@ -5955,7 +6000,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = eu.divus.videophonemobile;
 				PRODUCT_NAME = Linhome;
 				PROVISIONING_PROFILE_SPECIFIER = "";
